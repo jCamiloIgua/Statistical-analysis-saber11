@@ -1,0 +1,14 @@
+---
+title: "Taller Análisis Exploratorio Estadístico del ICFES"
+author: "Jonatan Camilo Igua Contreras  \nID: 808919 | NRC: 73466\n"
+date: "2025-04-0"
+output:
+  pdf_document: default
+  word_document: default
+subtitle: Minería de Datos
+fontsize: 12pt
+geometry: a4paper
+---
+## 1. Análisis Exploratorio de los resultados de la prueba saber 11 
+
+**1.1 Carga y exploración de los datos**  

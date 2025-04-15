@@ -9,6 +9,82 @@ subtitle: Minería de Datos
 fontsize: 12pt
 geometry: a4paper
 ---
-## 1. Análisis Exploratorio de los resultados de la prueba saber 11 
+## Análisis Exploratorio resultados de la prueba saber 11 
+En el siguiente taller se realizo un análisis estadístico completo de los resultados del 
+ICFES 2012. 
 
-**1.1 Carga y exploración de los datos**  
+**1. Carga y exploración de los datos** 
+
+**Codificación dataset de ICFES**:
+Para poder importar los datos del dataset del ICFES primero se tiene que mirar que tipo de codificación tiene el archivo .csv para saber como importarlo. Para esto se usa la funcion guess_encoding() del paquete readr, permite detectar la codificación de caracteres de un archivo CSV.
+```{r codificacion_datos, warning=FALSE,message=FALSE}
+library(knitr)
+library(dplyr)
+library(readr)
+guess_encoding("SB11-20121-RGSTRO-CLFCCN-V1-0-txt-csv.csv") %>%
+  kable(col.names = c("Codificación", "Confianza"), caption = "Codificaciones detectadas por `guess_encoding`")
+```
+Como se puede apreciar se obtuvo las codificaciones sugeridas, la confidence indica la confianza del tipo de codificación en este caso el valor es 1.00 el cual es la máxima confianza, por ende el archivo se debe leer con la codificación UTF-8
+
+**Importar dataset de ICFES**:
+Para importar los datos del archivo csv al proyecto de R se uso read_csv del paquete readr, para leer los datos y convertirlos en un data frame, se declaro que el tipo de codificación de los caracteres es UTF-8.
+```{r datos_icfes, warning=FALSE}
+library(readr)
+datos_icfes <- read_csv("SB11-20121-RGSTRO-CLFCCN-V1-0-txt-csv.csv", locale = locale(encoding = "UTF-8"), show_col_types = FALSE)
+```
+Despues de visualizar los pimeros datos importados en R se obtuvo un error Delimiter: "," indicando que si bien los datos se importaron bien algunos caracteres se importaron un un formato erroneo por ese motivo se creo una segunda variable con el delimitador sep y se elimino el error.Para los analisis se tomo datos_icfes_delimiter para evitar errores con los datos.
+
+```{r datos_icfesdelimiter, warning=FALSE}
+datos_icfes_delimiter <- read.csv("SB11-20121-RGSTRO-CLFCCN-V1-0-txt-csv.csv", sep = "," , encoding = "UTF-8")
+
+```
+
+**¿Cuantas observaciones y variables hay?**
+Para poder ver el numero de observaciones las filas de los datos se usa la función nrow().
+```{r nobservaciones,warning=FALSE,message=FALSE}
+# Cantidad de filas en el dataframe
+n_filas <- nrow(datos_icfes_delimiter)
+
+# Crear un dataframe 
+data_frame(filas = n_filas) %>%
+  kable(col.names = c("Número de filas"), caption = "Cantidad total de filas en el dataset")
+
+```
+Para poder ver el numero de variables las columnas se usa la función ncol().
+```{r nvariables,warning=FALSE,message=FALSE}
+# Cantidad de columnas en el dataframe
+n_columnas <- ncol(datos_icfes_delimiter)
+
+# Crear un dataframe 
+data_frame(columnas = n_columnas) %>%
+  kable(col.names = c("Número de columnas"), caption = "Cantidad total de columnas en el dataset")
+```
+
+**¿Que tipo de variables predominan: Numéricas o categóricas?** 
+Para poder determinar que tipos de variables predominan en el conjunto de datos de las notas del ICFES, se uso la función str() para poder ver la estructura del data frame, esto permite ver el tipo de cada variable y su contenido. Se uso Kable para poder organizar los datos en formato de tabla.
+
+```{r usoStr}
+#Primeros 20 elementos de los datos
+estructura <- capture.output(str(datos_icfes_delimiter[ , 1:20])) 
+#Se guarda en la variable
+estructura_df <- data.frame(estructura)
+
+# Mostrar los datos
+estructura_df %>%
+  kable(col.names = c("Estructura de Datos"), caption = "Estructura del Dataset (primeras 20 columnas)")
+
+```
+Utilizando la funcion str() sin limitar la cantidad de datos a mostrar seobtuvieron 45390 filas y 112 columnas .
+
+**Ver nombres y tipo de datos de las variables**
+Con la funcion sapply podemos visualizar el nombre de las variables y su tipo de dato, se crea una tabla con dos columnas una con los nombres de las variables y otra con su tipo de dato.
+```{r columnasNombre}
+library(knitr)
+
+tabla_tipos <- tibble::tibble(
+  Variable = names(datos_icfes_delimiter),
+  Tipo = sapply(datos_icfes_delimiter, class)
+)
+
+kable(tabla_tipos, caption = "Tipos de Variables en el DataFrame")
+```

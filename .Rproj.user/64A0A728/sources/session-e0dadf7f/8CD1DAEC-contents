@@ -1,5 +1,10 @@
 install.packages('rmarkdown')
 install.packages("dplyr")
-
+install.packages("readr")
+install.packages("knitr")
+install.packages("kableExtra")
+library(kableExtra)
+library(knitr)
 library(rmarkdown)
 library(dplyr)
+library(readr)

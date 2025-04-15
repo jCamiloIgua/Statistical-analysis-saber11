@@ -400,6 +400,176 @@ kable(head(datos_icfes_limpios2 %>% select(EDAD, CATEGORIA_EDAD), 15),
 
 ## 3. Analisis Exploratorio y Univariado
 
+En esta seccion del taller se van a analizar algunas variables del dataset limpio el cual es datos_icfes_limpios2, se realizara un analisis univariado para comprender el comportamiento de los datos.
+Para obterner los valores generales estadisticos de las variables: Edad_Estudiantes, PUNT_LENGUAJE, PUNT_MATEMATICAS, PUNT_C_SOCIALES, PUNT_FILOSOFIA, PUNT_BIOLOGIA, PUNT_QUIMICA, PUNT_FISICA, PUNT_INGLES
+Se creara un data frame en el cual se calculara cad valor como lo es: minimo, Q1, mediana, promedio, Q3, maximo y desviación estándar para poder llamar los datos de cada variable y poder analizar de mejor manera los datos. 
+
+```{r univariado_Summary,warning=FALSE,message=FALSE}
+obtener_estadisticos <- function(variable, nombre_variable) {
+  data.frame(
+    Variable = nombre_variable,
+    Mínimo = min(variable, na.rm = TRUE),
+    Q1 = quantile(variable, 0.25, na.rm = TRUE),
+    Mediana = median(variable, na.rm = TRUE),
+    Promedio = mean(variable, na.rm = TRUE),
+    Q3 = quantile(variable, 0.75, na.rm = TRUE),
+    Máximo = max(variable, na.rm = TRUE),
+    Desviación_Estándar = sd(variable, na.rm = TRUE)
+  )
+}
+
+```
+
+**Datos estadisticos Edad_estudiantes**
+```{r E_edadE,warning=FALSE,message=FALSE}
+kable(obtener_estadisticos(datos_icfes_limpios2$EDAD, "EDAD"),
+      caption = "Estadísticos Descriptivos: Edad", digits = 2)
+```
+
+La edad de los estudiantes cuenta con un rango muy amplio con un valor mínimo de 6 años y un máximo de 88 años, el promedio de la edad es de 22.9 años en comparación con la mediana se encuentra en 20 años, esto indica que más de la mitad de los estudiantes están en los 20 años, el cuartil Q1 está en 18 años, el Q3 está en 25 años esto indica que la mayoría de los estudiantes están en el intervalo de entre los 18 y 25 años. La desviación estándar es de 7.4 esto es una dispersión moderada, pero puede ser debida a los datos atípicos como los de 6 y 88 años, pero en general la población de estudiantes es mayormente joven y los datos no están tan dispersos.
+
+**Datos estadisticos PUNT_LENGUAJE**
+```{r E_lenguaje,warning=FALSE,message=FALSE}
+kable(obtener_estadisticos(datos_icfes_limpios2$PUNT_LENGUAJE, "LENG"),
+      caption = "Estadísticos Descriptivos: Lenguaje", digits = 2)
+```
+
+El puntaje de la materia de lenguaje muestra un promedio de 49.89 puntos tiene una media de 50 esto indica que los datos están muy centrados, el puntaje mínimo fue de 0 y el máximo fue de 90 puntos el Q1 es de 46 y Q3 es de 54, esto dice que 50% de los estudiantes están en este intervalo la desviación fue de 8.3 da una dispersión normal, en general los estudiantes tuvieron un buen desempeño en esta asignatura.
+
+**Datos estadisticos PUNT_MATEMATICAS**
+```{r E_matematicas,warning=FALSE,message=FALSE}
+kable(obtener_estadisticos(datos_icfes_limpios2$PUNT_MATEMATICAS, "MATE"),
+      caption = "Estadísticos Descriptivos: Matemáticas", digits = 2)
+```
+
+En la materia de matemáticas los estudiantes obtuvieron promedio de 46.55 con una mediana de 46, el mínimo puntaje fue 0 y el máximo 117 el Q1 fue de 40 y Q3 es de 52. La desviación estándar fue de 11.47 es muy alta lo que indica que los puntajes de los estudiantes fueron muy distintos entre si.
+
+**Datos estadisticos PUNT_C_SOCIALES**
+```{r E_sociales,warning=FALSE,message=FALSE}
+kable(obtener_estadisticos(datos_icfes_limpios2$PUNT_C_SOCIALES, "SOCIA"),
+      caption = "Estadísticos Descriptivos: Ciencias Sociales", digits = 2)
+```
+
+En la materia de sociales los estudiantes tuvieron un puntaje de 46.01 con una mediana de 46 esto indica una distribución con simetría, el puntaje mínimo fue 0 y el máximo 82, el Q1 es de 41 y el Q3 51 esto indica que el 50% de los estudiantes tuvieron puntajes entre 41 y 51. La desviación fue de 8.23 es muy baja ya que como se vio anterior mente la distribución es muy simétrica.
+
+**Datos estadisticos PUNT_FILOSOFIA**
+```{r E_filosofia,warning=FALSE,message=FALSE}
+kable(obtener_estadisticos(datos_icfes_limpios2$PUNT_FILOSOFIA, "FILO"),
+      caption = "Estadísticos Descriptivos: Filosofía", digits = 2)
+```
+
+En la materia de filosofía el promedio fue de 40.23 la mediana de 40 la distribución es muy simétrica, el menor puntaje fue 0 y el mayor fue 103. El Q1 es de 34 y el Q3 de 46 los puntajes de los estudiantes están entre 34 y 46, la desviación fue de 10.01 esto es una dispersión moderada.
+
+**Datos estadisticos PUNT_BIOLOGIA**
+```{r E_biologia,warning=FALSE,message=FALSE}
+kable(obtener_estadisticos(datos_icfes_limpios2$PUNT_BIOLOGIA, "BIOLO"),
+      caption = "Estadísticos Descriptivos: Biología", digits = 2)
+```
+
+En bilogía los puntajes estuvieron en promedio de 46.03 mediana de 46, mínimo de 0 máximo de 100 con un Q1 de 42 Y Q3 de 53 la desviación fue de 8.22 esta materia cuenta con unos puntajes moderados en dispersión.
+
+**Datos estadisticos PUNT_QUIMICA**
+```{r E_quimica,warning=FALSE,message=FALSE}
+kable(obtener_estadisticos(datos_icfes_limpios2$PUNT_QUIMICA, "QUIMI"),
+      caption = "Estadísticos Descriptivos: Química", digits = 2)
+```
+
+En la materia de química los puntajes estuvieron en promedio de 45.76, mediana de 45, mínimo de 0, máximo de 92, con un Q1 de 40.5 y Q3 de 50. La desviación fue de 7.91. Esta materia cuenta con unos puntajes moderados en dispersión y una distribución centrada en valores del rango.
+
+**Datos estadisticos PUNT_FISICA**
+```{r E_fisica,warning=FALSE,message=FALSE}
+kable(obtener_estadisticos(datos_icfes_limpios2$PUNT_FISICA, "FISI"),
+      caption = "Estadísticos Descriptivos: Física", digits = 2)
+```
+
+En la materia de física los puntajes promedios fueron de 44.2, se registró una mediana de 43, el puntaje mínimo fue de 0 y el máximo de 123, se contó con un Q1 de 37 y Q3 de 51 siendo los puntajes de física de 37 y 51. La desviación fue de 11.03. Esta materia presenta una dispersión alta en los puntajes, lo que indica que hay una mayor variabilidad en el desempeño de los estudiantes durante la presentación del examen.
+
+**Datos estadisticos PUNT_INGLES**
+```{r E_ingles,warning=FALSE,message=FALSE}
+kable(obtener_estadisticos(datos_icfes_limpios2$PUNT_INGLES, "ING"),
+      caption = "Estadísticos Descriptivos: Inglés", digits = 2)
+```
+
+En la materia de inglés los puntajes promedios fueron de 42.91, se registró una mediana de 42, el puntaje mínimo fue de -1 y el máximo de 100, se contó con un Q1 de 37 y Q3 de 46, siendo el rango de los puntajes de inglés de 37 y 46. La desviación fue de 11.89. Esta materia presenta una alta dispersión en los puntajes, lo cual indica una gran variabilidad en los resultados de los estudiantes, posiblemente gracias a los diferentes niveles de dominio del idioma.
+
+**¿Cuál es la materia con mayor puntaje promedio?**
+Para obtener este valor se calcula el promedio de cada materia y se usa la función max(), para saber cual es el mayor promedio.
+```{r materia_promedio,warning=FALSE,message=FALSE}
+# Promedios
+promedios_materias <- data.frame(
+  Materia = c("Lenguaje", "Matemáticas", "Ciencias Sociales", "Filosofía", 
+              "Biología", "Química", "Física", "Inglés"),
+  Promedio = c(mean(datos_icfes_limpios2$PUNT_LENGUAJE, na.rm = TRUE),
+               mean(datos_icfes_limpios2$PUNT_MATEMATICAS, na.rm = TRUE),
+               mean(datos_icfes_limpios2$PUNT_C_SOCIALES, na.rm = TRUE),
+               mean(datos_icfes_limpios2$PUNT_FILOSOFIA, na.rm = TRUE),
+               mean(datos_icfes_limpios2$PUNT_BIOLOGIA, na.rm = TRUE),
+               mean(datos_icfes_limpios2$PUNT_QUIMICA, na.rm = TRUE),
+               mean(datos_icfes_limpios2$PUNT_FISICA, na.rm = TRUE),
+               mean(datos_icfes_limpios2$PUNT_INGLES, na.rm = TRUE))
+)
+
+# Mostrar la materia con el mayor puntaje promedio
+materia_mayor_promedio <- promedios_materias[which.max(promedios_materias$Promedio), ]
+materia_mayor_promedio
+```
+El resultado obtenido fue que la materia con mayor puntaje promedio fue la materia de Lenguaje con un promedio de 49.893, esto indica que en términos generales los estudiantes obtuvieron mejores resultados de calificación en esta área evaluada, se puede interpretar que el grupo de estudiantes estudiado tiene fortalezas relacionadas con el área del lenguaje como la lectura crítica o compresión lectora.
+**¿Cuál presenta la mayor desviación estándar?**
+Se calcula la mayor desviación estandar mirando la desviación de cada una.
+```{r mayor_desviacion,warning=FALSE,message=FALSE}
+desviacion_estandar_materias <- data.frame(
+  Materia = c("Lenguaje", "Matemáticas", "Ciencias Sociales", "Filosofía", 
+              "Biología", "Química", "Física", "Inglés"),
+  Desviacion_Estandar = c(sd(datos_icfes_limpios2$PUNT_LENGUAJE, na.rm = TRUE),
+                          sd(datos_icfes_limpios2$PUNT_MATEMATICAS, na.rm = TRUE),
+                          sd(datos_icfes_limpios2$PUNT_C_SOCIALES, na.rm = TRUE),
+                          sd(datos_icfes_limpios2$PUNT_FILOSOFIA, na.rm = TRUE),
+                          sd(datos_icfes_limpios2$PUNT_BIOLOGIA, na.rm = TRUE),
+                          sd(datos_icfes_limpios2$PUNT_QUIMICA, na.rm = TRUE),
+                          sd(datos_icfes_limpios2$PUNT_FISICA, na.rm = TRUE),
+                          sd(datos_icfes_limpios2$PUNT_INGLES, na.rm = TRUE))
+)
+
+materia_mayor_desviacion <-desviacion_estandar_materias[which.max(desviacion_estandar_materias$Desviacion_Estandar), ]
+materia_mayor_desviacion
+```
+La materia que presento mayor desviación estándar fue ingles con un valor 11.88893, esto indica que los puntajes individuales de cada estudiante no fueron uniformes no hay uniformidad de datos, esto indica que diferentes estudiantes sacaron datos bajos o altos pero no hay una uniformidad que diga que la mayoría saco un puntaje en general. Esto puede ser debido a que durante el examen los estudiantes no contaban un buen nivel de inglés y otros al contrario si tenían bases sólidas en el idioma generando la diferencia de los datos.
+**¿Cual es la distribución de edades entre los estudiantes**
+
+Para poder ver la distribución de edades de los estudiantes de hace uso de la variable categoria_edad creada anteriormente, los datos se mostraron con un diagrama de barras para ver cómo se distribuyen las categorías de las edades.
+```{r distribucion_edades,warning=FALSE,message=FALSE}
+library(ggplot2)
+library(dplyr)
+
+# Contar la cantidad de estudiantes por categoría
+conteo_edades <- datos_icfes_limpios2 %>%
+  count(CATEGORIA_EDAD)
+
+# Gráfico de barras 
+ggplot(conteo_edades, aes(x = CATEGORIA_EDAD, y = n)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  geom_text(aes(label = n), vjust = -0.5, size = 4) +  # Agrega los valores sobre las barras
+  labs(title = "Distribución de Estudiantes por Categoría de Edad",
+       x = "Categoría de Edad",
+       y = "Cantidad de Estudiantes") +
+  theme_minimal()
+```
+
+Con los datos obtenidos del diagrama se puede decir que la categorización de las edades es de la siguiente manera:
+Jóvenes (18 - 26 años): 31.424 estudiantes
+Adultos (27 - 59 años): 9.088 estudiantes
+Adolescentes (12 - 17 años): 3.803 estudiantes
+Adulto mayor (60+ años): 67 estudiantes
+Desconocido: 885 estudiantes
+
+La variable desconocida se creó para guardar los datos faltantes o erróneos de la variable edad.
+La mayoría de los estudiantes se encuentran en la categoría de Jóvenes, este dato es coherente ya que en la mayoría de los casos los estudiantes que presentan el ICFES están a punto de salir del colegio y sus edades son de 18 para arriba.
+
+En el análisis se obtuvo que participo una gran proporción de adultos mayores de 26 años, esto se debe posiblemente a que este grupo pudo estar compuesto por personas que retomaron los estudios o quieren estudiar en una Universidad y necesitan la nota del examen para aplicar a los programas universitarios.
+
+Los adolescentes representan una proporción menor de la muestra de la población de estudiantes, esto se debe a que a pesar que en el grado 11 los estudiantes tienen o son mayores a 18 años hay excepciones en donde están a punto de cumplirlos cuando presentan el examen.
+Los adultos mayores son una gran minoría ya que es un dato esperado en el análisis pero la presencia de los valores desconocidos que fueron 885 esto indica que existen registros que están incorrectos o ausentes, esto es un limitante en el análisis ya que no se puede tomar en cuenta toda la muestra de los estudiantes que presentaron el examen de ICFES en el 2012.
+
 
 ## 4. Análisis Bivariado
 

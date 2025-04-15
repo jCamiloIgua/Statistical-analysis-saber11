@@ -125,5 +125,135 @@ Con la función unique permite ver cuantos valores distintos hay el resultado fu
 **Conclusión ¿Que tipo de variables predominan?**
 Después de conocer y analizar cada variable se puede concluir que hay mas variables de tipo numéricas con 63 variables y 47 de tipo categóricas por ahora se toman como categóricas, la variable logical se descarta ya que al no contar con información no es importante en este análisis de tipo de variables.
 
-## 2. Limpieza y preparación de datos** 
-Hola...
+## 2. Limpieza y preparación de datos
+
+**Verificar valores faltantes**
+En el anterior análisis se descubrió que la variable ESTU_LIMITA_BAJAVISION tiene valores faltantes, si se usa la función any con is.na se debe obtener un valor True.
+```{r datos_faltantes}
+any(is.na(datos_icfes_delimiter))
+```
+Para contar cuantos Na hay en todo el conjunto de datos se usa la función sum().
+```{r datos_faltantesSUM}
+sum(is.na(datos_icfes_delimiter))
+```
+Se encontro un valor considerable de valores NA
+
+**Variables con valores NA** 
+Para ver los valores faltantes por columna se usa colSums() para poder ver de manera sencilla la cantidad de valores NA de cada variable.
+```{r datos_faltantesDimension}
+#Por columna
+na_por_columna <- colSums(is.na(datos_icfes_delimiter))
+
+# columnas con NA
+na_filtrados <- na_por_columna[na_por_columna > 0]
+
+# Convertir a data frame 
+naKable_df <- data.frame(
+  Variable = names(na_filtrados),
+  Cantidad_NA = as.numeric(na_filtrados)
+)
+
+#tabla
+knitr::kable(naKable_df, caption = "Cantidad de valores faltantes (NA) por columna", align = "lc")
+```
+**Análisis de variables irrelevantes o vacías**
+Después de mirar que variables contienen valores de tipo Na se analizo un conjunto de variables que para los siguientes análisis del taller no afectan a los resultados del análisis, estas variables son:
+Las variables de reprobación de grados: Se eliminan porque es una variable que no es relevante para los próximos análisis.
+Variables a eliminar: ESTU_REPROBO_CUARTO, ESTU_REPROBO_DECIMO,
+ESTU_REPROBO_NOVENO,ESTU_REPROBO_OCTAVO,ESTU_REPROBO_PRIMERO,ESTU_REPROBO_QUINTO,ESTU_REPROBO_SEGUNDO,ESTU_REPROBO_SEPTIMO,ESTU_REPROBO_SEXTO,ESTU_REPROBO_TERCERO,ESTU_REPROBO_ONCE_MAS
+Se crea una nueva variable llamada datos_icfes_reprobo que guardara los datos sin tener en cuenta los que se van a descartar para los análisis.
+```{r eliminacion_reprobados,warning=FALSE,message=FALSE}
+library(dplyr)
+
+datos_icfes_reprobo <- datos_icfes_delimiter %>% select(-c(
+  ESTU_REPROBO_CUARTO,
+    ESTU_REPROBO_DECIMO,
+    ESTU_REPROBO_NOVENO,
+    ESTU_REPROBO_OCTAVO,
+    ESTU_REPROBO_PRIMERO,
+    ESTU_REPROBO_QUINTO,
+    ESTU_REPROBO_SEGUNDO,
+    ESTU_REPROBO_SEPTIMO,
+    ESTU_REPROBO_SEXTO,
+    ESTU_REPROBO_TERCERO,
+    ESTU_REPROBO_ONCE_MAS
+))
+
+```
+Variables de Incapacidad: En el conjunto de datos se elimino la variable ESTU_LIMITA_BAJAVISION ya que no es relevante para el análisis del taller se eliminara de la variable datos_icfes_reprobo
+
+```{r eliminacion_incapacidad,warning=FALSE,message=FALSE}
+datos_icfes_incapa <- datos_icfes_reprobo %>% select(-c(
+  ESTU_LIMITA_BAJAVISION))
+
+```
+**Valores inconsistentes o faltantes** 
+
+*ESTU_CUANTOS_COLE_ESTUDIO:* Se analizo si hay datos inconsistentes en la cantidad de colegios de un estudiante se valida que si un estudiante tiene registrado mas de 10 colegios ya es un dato dudoso.Se encontraron ceros inconsistencias.
+```{r cantidad_colegios,warning=FALSE,message=FALSE}
+library(dplyr)
+
+datos_icfes_incapa %>%
+  filter(ESTU_CUANTOS_COLE_ESTUDIO > 10) %>%
+  select(ESTU_CUANTOS_COLE_ESTUDIO) %>%
+  distinct() %>%
+  arrange(desc(ESTU_CUANTOS_COLE_ESTUDIO))
+```
+*FAMI_PERSONAS_HOGAR* = Se analiza esta variable en donde si hay 0 personas del hogar o mas de 20 seria un dato inconsistente.Se encontraron ceros inconsistencias.
+```{r cantidad_familia,warning=FALSE,message=FALSE}
+datos_icfes_incapa %>%
+  filter(FAMI_PERSONAS_HOGAR == 0 | FAMI_PERSONAS_HOGAR > 20) %>%
+  select(FAMI_PERSONAS_HOGAR) %>%
+  distinct() %>%
+  arrange(FAMI_PERSONAS_HOGAR)
+```
+
+*FAMI_ESTRATO_VIVIENDA: * A la hora de analizar el estrado se encontraron inconsistencias con los datos ya que se encontraron estratos mayores del estrato 6
+```{r estratos,warning=FALSE,message=FALSE}
+library(dplyr)
+library(knitr)
+
+# Tabla de frecuencias del estrato de vivienda (incluye NA)
+datos_icfes_incapa %>%
+  group_by(FAMI_ESTRATO_VIVIENDA) %>%
+  summarise(Frecuencia = n()) %>%
+  arrange(desc(Frecuencia)) %>%
+  kable(caption = "Distribución de la variable FAMI_ESTRATO_VIVIENDA")
+```
+
+Como solución se decidió por filtrar y limpiar los valores mayores del estrato 6.
+```{r limpi_estrato,warning=FALSE,message=FALSE}
+
+#  Nuevo dataset, dejando solo estratos válidos
+datos_icfes_estrato <- datos_icfes_incapa %>%
+  mutate(FAMI_ESTRATO_VIVIENDA = as.character(FAMI_ESTRATO_VIVIENDA)) %>%
+  filter(FAMI_ESTRATO_VIVIENDA %in% c("1", "2", "3", "4", "5", "6") | is.na(FAMI_ESTRATO_VIVIENDA)) %>%
+  mutate(FAMI_ESTRATO_VIVIENDA = as.numeric(FAMI_ESTRATO_VIVIENDA))
+
+#Ver los estratos 
+library(dplyr)
+library(knitr)
+
+datos_icfes_estrato %>%
+  group_by(FAMI_ESTRATO_VIVIENDA) %>%
+  summarise(Frecuencia = n()) %>%
+  arrange(desc(Frecuencia)) %>%
+  kable(caption = "Distribución nueva de la variable FAMI_ESTRATO_VIVIENDA")
+
+```
+**Estandarizar columnas con errores estructurales**
+
+**Imputar datos faltantes** 
+
+
+## 2.1 Nuevas transformaciones
+**Calcular edad estudiante**
+
+**Nueva columna edad categorizada**
+
+
+
+
+## 3. Analisis Exploratorio y Univariado
+
+

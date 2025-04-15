@@ -243,17 +243,173 @@ datos_icfes_estrato %>%
 ```
 **Estandarizar columnas con errores estructurales**
 
+Se estandarizo los datos de los documentos de los estudiantes, ya que los valores que contiene esta variable son:
+```{r documentoE,warning=FALSE,message=FALSE, echo=FALSE}
+
+unique(datos_icfes_estrato$ESTU_TIPO_DOCUMENTO)
+
+```
+Para mejorar los datos se crea un vector con los nombres completos de los documentos y se usa dlpyr::recode para remplazar los valores.
+```{r limpiezaDocum,warning=FALSE,message=FALSE}
+library(dplyr)
+
+datos_icfes_limpios <- datos_icfes_estrato %>%
+  mutate(ESTU_TIPO_DOCUMENTO = case_when(
+    ESTU_TIPO_DOCUMENTO == "C" ~ "Cédula",
+    ESTU_TIPO_DOCUMENTO == "P" ~ "Pasaporte",
+    ESTU_TIPO_DOCUMENTO == "T" ~ "Tarjeta de Identidad",
+    ESTU_TIPO_DOCUMENTO == "R" ~ "Registro Civil",
+    ESTU_TIPO_DOCUMENTO == "E" ~ "Cédula de Extranjería",
+    ESTU_TIPO_DOCUMENTO == "Q" ~ "Permiso Especial de Permanencia",
+    ESTU_TIPO_DOCUMENTO == "V" ~ "Visa",
+    ESTU_TIPO_DOCUMENTO == ""  ~ "Sin Información",
+    TRUE ~ ESTU_TIPO_DOCUMENTO  # para conservar cualquier valor inesperado
+  ))
+
+unique(datos_icfes_limpios$ESTU_TIPO_DOCUMENTO)
+
+```
 **Imputar datos faltantes** 
+Primera se usa la funcion colSums con is.na para ver las columnas que contiene valores NA del dataset limpiado.
+```{r Na_limpio,warning=FALSE,message=FALSE}
+library(knitr)
+library(dplyr)
 
+colSums(is.na(datos_icfes_limpios)) %>%
+  as.data.frame() %>%
+  tibble::rownames_to_column(var = "Variable") %>%
+  rename(Valores_Faltantes = ".") %>%
+  filter(Valores_Faltantes > 0) %>%
+  kable(caption = "Cantidad de valores faltantes por variable")
 
+```
+Con las variables con datos NA, se procedera a escogar algunas varibles para realizar la imputacion de datos, la cual consiste en llenar los valores faltantes (NA) usando una tecnica logica en este caso usando la media, moda o diferentes tecnicas.
+Las variables que cuenten con una valor elevado de NA no seran imputadas por su dificultad, como lo son: Estu_ETNIA, ESTU_CARRDESEADA_TIPO, ESTU_IES-COD-DESEADA etc
+Por otro lado hay variables como lo son: FAMI_OCUPA_PADRE, FAMI_OCUPA_MADRE, ESTU_TRABAJA, FAMI_CELULAR y FAMI_NEVERA que tienen pocos valores NA, se pueden imputar
+**Imputación Variables**
+Para las varaibles de tipo Integer como FAMI_OCUPA_PADRE se realiza la imputacion con la mediana la cual remplaza los valors de NA por la media de los valores existentes, no se eliminan solo se remplazan.
+```{r imputacion,warning=FALSE,message=FALSE}
+
+#Copia del dataframe
+datos_icfes_limpios2 <- datos_icfes_limpios
+#FAMI_OCUPA_PADRE con la mediana
+datos_icfes_limpios2 $FAMI_OCUPA_PADRE[is.na(datos_icfes_limpios2$FAMI_OCUPA_PADRE)] <- 
+  median(datos_icfes_limpios2$FAMI_OCUPA_PADRE, na.rm = TRUE)
+
+#La imputación se realizó correctamente
+cat("Variable FAMI_OCUPA_PADRE imputada con mediana:\n")
+summary(datos_icfes_limpios2$FAMI_OCUPA_PADRE)
+
+#FAMI_OCUPA_MADRE
+datos_icfes_limpios2$FAMI_OCUPA_MADRE[is.na(datos_icfes_limpios2$FAMI_OCUPA_MADRE)] <- 
+  median(datos_icfes_limpios2$FAMI_OCUPA_MADRE, na.rm = TRUE)
+
+cat("Variable FAMI_OCUPA_MADRE imputada con mediana:\n")
+summary(datos_icfes_limpios2$FAMI_OCUPA_MADRE)
+
+#ESTU_TRABAJA integer
+datos_icfes_limpios2$ESTU_TRABAJA[is.na(datos_icfes_limpios2$ESTU_TRABAJA)] <- 
+  median(datos_icfes_limpios2$ESTU_TRABAJA, na.rm = TRUE)
+
+# La imputación se realizó correctamente
+cat("Variable ESTU_TRABAJA imputada con mediana:\n")
+summary(datos_icfes_limpios2$ESTU_TRABAJA)
+#FAMI_CELULAR integer
+
+datos_icfes_limpios2$FAMI_CELULAR[is.na(datos_icfes_limpios2$FAMI_CELULAR)] <- 
+  median(datos_icfes_limpios2$FAMI_CELULAR, na.rm = TRUE)
+
+# La imputación se realizó correctamente
+cat("Variable FAMI_CELULAR imputada con mediana:\n")
+summary(datos_icfes_limpios2$FAMI_CELULAR)
+
+#FAMI_NEVERA integer
+
+datos_icfes_limpios2$FAMI_NEVERA[is.na(datos_icfes_limpios2$FAMI_NEVERA)] <- 
+  median(datos_icfes_limpios2$FAMI_NEVERA, na.rm = TRUE)
+
+# La imputación se realizó correctamente
+cat("Variable FAMI_NEVERA imputada con mediana:\n")
+summary(datos_icfes_limpios2$FAMI_NEVERA)
+
+```
+
+Las variables seleccionadas se imputaron correctamente por esta razon si se mira el data frame datos_icfes_limpios2 estas no aparecen cuando se filtra por valores NA
+
+```{r Na_limpio2,warning=FALSE,message=FALSE}
+library(knitr)
+library(dplyr)
+
+colSums(is.na(datos_icfes_limpios2)) %>%
+  as.data.frame() %>%
+  tibble::rownames_to_column(var = "Variable") %>%
+  rename(Valores_Faltantes = ".") %>%
+  filter(Valores_Faltantes > 0) %>%
+  kable(caption = "Cantidad de valores faltantes por variable Imputado")
+
+```
 ## 2.1 Nuevas transformaciones
 **Calcular edad estudiante**
+Para poder calcular edad del estudiante apartir de su fecha de nacimiento y la fecha del examen que es del 2012 se usan las variables: ESTU_NACIMIENTO_DIA, ESTU_NACIMIENTO_MES, ESTU_NACIMIENTO_ANNO.
+
+Se creo una nueva columna con la fecha completa del estudiante llamada FECHA_NACIMIENTO
+
+```{r N_edad,warning=FALSE,message=FALSE}
+#Nueva columna con fecha completa
+datos_icfes_limpios2$FECHA_NACIMIENTO <- as.Date(paste(datos_icfes_limpios2$ESTU_NACIMIENTO_ANNO,datos_icfes_limpios2$ESTU_NACIMIENTO_MES,datos_icfes_limpios2$ESTU_NACIMIENTO_DIA,sep = "-"),format = "%Y-%m-%d")
+
+#Se toma una fecha del año 2012 ya que no esta la fecha exacta en los datos
+fecha_examen <- as.Date("2012-01-01")
+
+# Calcular la edad se restan la fecha de nacimiento de la fecha del examen
+datos_icfes_limpios2$EDAD <- as.numeric(difftime(fecha_examen, datos_icfes_limpios2$FECHA_NACIMIENTO, units = "weeks")) / 52.25
+# Redondear las edades a enteros
+datos_icfes_limpios2$EDAD <- round(datos_icfes_limpios2$EDAD)
+library(knitr)
+
+# Mostrar solo las primeras 15 filas con la columna "EDAD"
+kable(head(datos_icfes_limpios2 %>% select(EDAD), 15), 
+      col.names = c("Edad"), 
+      caption = "Primeras 15 Edades")
+
+```
 
 **Nueva columna edad categorizada**
+Se creo una nueva columna llamada CATEGORIA_EDAD, para guardar las categorias de las edades, se uso la funcion mutate(), para poder agregar los valores en las columnas, y con el case_when() se crean las categorias de la edad.
+
+```{r categoria_edad,warning=FALSE,message=FALSE}
+# Crear la nueva columna "CATEGORIA_EDAD"
+datos_icfes_limpios2 <- datos_icfes_limpios2 %>%
+  mutate(CATEGORIA_EDAD = case_when(
+    EDAD >= 12 & EDAD <= 17 ~ "Adolescente",
+    EDAD >= 18 & EDAD <= 26 ~ "Joven",
+    EDAD >= 27 & EDAD <= 59 ~ "Adulto",
+    EDAD >= 60 ~ "Adulto mayor",
+    TRUE ~ "Desconocido"  # Para edades fuera de los rangos
+  ))
+
+library(knitr)
+
+kable(head(datos_icfes_limpios2 %>% select(EDAD, CATEGORIA_EDAD), 15), 
+      col.names = c("Edad", "Categoría de Edad"), 
+      caption = "Primeras 15 Edades y Categorías de Edad")
 
 
+```
 
 
 ## 3. Analisis Exploratorio y Univariado
 
+
+## 4. Análisis Bivariado
+
+**¿Quien se destaca más en matemáticas hombres o mujeres?**
+
+
+**¿Existe diferencia significativa en el puntaje global por género?**
+
+
+**¿Qué tan fuerte es la relación entre matemáticas y lectura crítica?**
+
+## 5. Visualización socioeconómica
 

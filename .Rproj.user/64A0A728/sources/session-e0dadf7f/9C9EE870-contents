@@ -11,9 +11,9 @@ geometry: a4paper
 ---
 ## Análisis Exploratorio resultados de la prueba saber 11 
 En el siguiente taller se realizo un análisis estadístico completo de los resultados del 
-ICFES 2012. 
+ICFES 2012.  
 
-**1. Carga y exploración de los datos** 
+## 1. Carga y exploración de los datos
 
 **Codificación dataset de ICFES**:
 Para poder importar los datos del dataset del ICFES primero se tiene que mirar que tipo de codificación tiene el archivo .csv para saber como importarlo. Para esto se usa la funcion guess_encoding() del paquete readr, permite detectar la codificación de caracteres de un archivo CSV.
@@ -41,7 +41,7 @@ datos_icfes_delimiter <- read.csv("SB11-20121-RGSTRO-CLFCCN-V1-0-txt-csv.csv", s
 
 **¿Cuantas observaciones y variables hay?**
 Para poder ver el numero de observaciones las filas de los datos se usa la función nrow().
-```{r nobservaciones,warning=FALSE,message=FALSE}
+```{r nobservaciones,warning=FALSE,message=FALSE,echo=FALSE}
 # Cantidad de filas en el dataframe
 n_filas <- nrow(datos_icfes_delimiter)
 
@@ -51,7 +51,7 @@ data_frame(filas = n_filas) %>%
 
 ```
 Para poder ver el numero de variables las columnas se usa la función ncol().
-```{r nvariables,warning=FALSE,message=FALSE}
+```{r nvariables,warning=FALSE,message=FALSE,echo=FALSE}
 # Cantidad de columnas en el dataframe
 n_columnas <- ncol(datos_icfes_delimiter)
 
@@ -88,3 +88,42 @@ tabla_tipos <- tibble::tibble(
 
 kable(tabla_tipos, caption = "Tipos de Variables en el DataFrame")
 ```
+**Análisis de las variables del dataset de ICFES Saber 11**
+Los tipos de datos encontrados en el dataset de las notas del ICFES son: 
+
+*Character:* Es el tipo de dato usado para texto o cadenas de caracteres.
+
+*Integer:* Se usa para los números enteros sin decimales.
+
+*numeric:* Se usa para los números decimales se puede usan para números enteros también.
+
+*logical:* Se usa para valores booleanos TRUE o FALSE.
+
+Los variables del conjunto de datos son sobre datos del estudiante, residencia del estudiante, información sobre el colegio, información sobre los grados cursados, información familiar e ingresos.
+
+**Cantidad de cada tipo de variable**
+Para poder contar cada tipo de variable se uso la función sapply() la cual aplica una función a cada columna del data frame, se le aplico la función class para que tome el tipo de datos de cada variable, lo que genera es un vector con los datos, con la función table() se cuenta cuantas veces aparece un valor del vector creado con sapply().
+```{r contar_variables}
+tabla_tipos <- table(sapply(datos_icfes_delimiter, class))
+tabla_tipos
+```
+Los datos obtenidos son con el dataset original, sin haberle hecho ninguna técnica de transformación y limpieza de datos, por ende se van a tomar como datos cualitativos el tipo character y como datos cuantitativos los tipos: integer y numeric.
+Con este análisis en hay en total 47 variables categóricas o cualitativas y 64 variables cuantitativas o numéricas.
+Pero en el conjunto hay una variable con un tipo de dato logical.
+```{r logical}
+variables_logicas <- names(datos_icfes_delimiter)[sapply(datos_icfes_delimiter, is.logical)]
+variables_logicas
+```
+La variable contiene los siguientes datos:
+```{r logical_data}
+unique(datos_icfes_delimiter$ESTU_LIMITA_BAJAVISION)
+all(is.na(datos_icfes_delimiter$ESTU_LIMITA_BAJAVISION))
+
+```
+Con la función unique permite ver cuantos valores distintos hay el resultado fue NA osea esta variable no contiene datos y se uso all para verificar si en toda la variable soy hay datos NA y arrojo TRUE quiere decir que esta variable este campo nunca tuvo datos. 
+
+**Conclusión ¿Que tipo de variables predominan?**
+Después de conocer y analizar cada variable se puede concluir que hay mas variables de tipo numéricas con 63 variables y 47 de tipo categóricas por ahora se toman como categóricas, la variable logical se descarta ya que al no contar con información no es importante en este análisis de tipo de variables.
+
+## 2. Limpieza y preparación de datos** 
+Hola...

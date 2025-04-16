@@ -1,7 +1,7 @@
 ---
 title: "Taller Análisis Exploratorio Estadístico del ICFES"
 author: "Jonatan Camilo Igua Contreras  \nID: 808919 | NRC: 73466\n"
-date: "2025-04-0"
+date: "2025-04-20"
 output:
   pdf_document: default
   word_document: default
@@ -572,14 +572,116 @@ Los adultos mayores son una gran minoría ya que es un dato esperado en el anál
 
 
 ## 4. Análisis Bivariado
+Teniendo en cuenta que hay que analizar las comparaciones con: ciudad, La edad (Categorizada), tipo y caracterización del colegio y nivel se inglés, se va a analizar la matemáticas por separado teniendo en cuenta el género.
+
+**Por Departamento**
+
+```{r mate_ciudad,warning=FALSE,message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+# Promedio por género y ciudad
+mat_ciudad <- datos_icfes_limpios2 %>%
+  group_by(ESTU_RESIDE_DEPTO , ESTU_GENERO) %>%
+  summarise(Prom_MATE = mean(PUNT_MATEMATICAS, na.rm = TRUE), .groups = "drop")
+
+kable(head(mat_ciudad, 10), caption = "Promedio de Matemáticas por Género y Departamento")
+```
+
+En el departamento de Amazonas las mujeres (F) tienen un puntaje promedio de 43.50 en matematicas por otro lado los hombres (M) tiene un puntaje promedio de 45.14, los hombres en este departamento tienen mayor puntaje.
+
+En el departamento de Antioquia las mujeres (F) tienen un puntaje promedio de 41.88 en matematicas por otro lado los hombres (M) tiene un puntaje promedio de 45.10, los hombres en este departamento tienen mayor puntaje.
+
+En el departamento de Arauca las mujeres (F) tienen un puntaje promedio de 40.96 en matematicas por otro lado los hombres (M) tiene un puntaje promedio de 45.46, los hombres en este departamento tienen mayor puntaje.
+
+En el departamento de Atlantico las mujeres (F) tienen un puntaje promedio de 41.88 en matematicas por otro lado los hombres (M) tiene un puntaje promedio de 45.10, los hombres en este departamento tienen mayor puntaje. 
+
+**Por categoria edad**
+
+```{r mate_categoriaEdad,warning=FALSE,message=FALSE}
+mat_edad <- datos_icfes_limpios2 %>%
+  group_by(CATEGORIA_EDAD, ESTU_GENERO) %>%
+  summarise(Prom_MATE = mean(PUNT_MATEMATICAS, na.rm = TRUE), .groups = "drop")
+
+ggplot(mat_edad, aes(x = CATEGORIA_EDAD, y = Prom_MATE, fill = ESTU_GENERO)) +
+  geom_col(position = "dodge") +
+  labs(title = "Promedio de Matemáticas por Categoría de Edad y Género",
+       x = "Categoría de Edad", y = "Promedio Puntaje Matemáticas") +
+  theme_minimal()
+
+```
+Adolescentes: Las mujeres (F) tuvieron un puntaje de 45 y los hombres (M) de 48 los hombres tienen mejor puntaje que las mujeres.
+
+Adulto: Las mujeres (F) tuvieron un puntaje de 43 y los hombres (M) de 48 la diferencia fue de 5 puntos con respecto a las mujeres.
+
+Adulto Mayor: Las mujeres (F) tuvieron un puntaje de 43 y los hombres (M) de 44 la diferencia fue muy pequeña.
+
+Joven: Las mujeres (F) obtuvieron 47 y los hombres (M) un puntaje de 49
+
+Se puede concluir que en todas las categorías de edad los hombres (M) obtienen mejores promedios en matemáticas que las mujeres (F). 
+
+**Por tipo y caracterización del colegio**
+
+```{r mate_colegio,warning=FALSE,message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(knitr)
+
+# Agrupamos por variables del colegio y género
+mat_colegio <- datos_icfes_limpios2 %>%
+  group_by(ESTU_GENERO, COLE_CARACTER, COLE_GENERO) %>%
+  summarise(Prom_MATEMATICAS = mean(PUNT_MATEMATICAS, na.rm = TRUE), .groups = "drop")
+
+# Primeros resultados
+kable(head(mat_colegio, 10), caption = "Promedio de Matemáticas según Género y Características del Colegio", digits = 2)
+
+```
+
+Con base a los resultados las mujeres que estudian en un colegios femeninos tienen puntajes más altos con 52.85, por otro lado los colegios de género masculino tienen un promedio más bajo con 37.50, se puede concluir que las mujeres tienen mejores resultados si el colegio es puramente académico y femenino. 
+
+**Nivel de ingles**
+
+```{r mate_ingles,warning=FALSE,message=FALSE}
+# Agrupamos por género y nivel de inglés
+mat_ingles <- datos_icfes_limpios2 %>%
+  group_by(ESTU_GENERO, DESEMP_INGLES) %>%
+  summarise(Prom_MATEMATICAS = mean(PUNT_MATEMATICAS, na.rm = TRUE), .groups = "drop")
+
+# Tabla de resultados
+kable(mat_ingles, caption = "Promedio de Matemáticas por Género y Nivel de Inglés", digits = 2)
+```
+
+Según los datos de nivel de inglés los mayores niveles B1 y B+ tuvieron un mayor promedio de matemáticas, esto es para mujeres y hombres, los hombres tienen los mayores promedios en ingles en B+ es de 65.79 y B1 de 60.70, las mujeres tienen buenos puntajes también B+ de 61.09 y B1 de 57.20. Los hombres son los que tienen mayor puntaje en ingles por ende la relación es proporcional con matemáticas.
 
 **¿Quien se destaca más en matemáticas hombres o mujeres?**
 
+Según los datos analizados de cada variable los hombres destacan más en el área de matemáticas que las mujeres, ya que mostraron mayores promedios en casi todos los casos de estudio como en edad, la ubicación geográfica, el tipo de colegio y en el nivel de inglés.
 
 **¿Existe diferencia significativa en el puntaje global por género?**
 
+Si existe una diferencia significativa en el puntaje global de género, según los análisis realizados sobre las variables de departamento, edad, tipo de colegio y nivel de inglés, se puedo encontrar que en la variable por genero los hombres obtuvieron promedios más altos que las mujeres, en la clasificación por departamentos los hombres también tuvieron los mejores puntajes por ejemplo en Antioquia los hombres tuvieron 45.10 y las mujeres 41.87.
+En la clasificación de edad los hombres también lideraron los puntajes se puede concluir que si existe una gran diferencia de puntajes de matemáticas entre las mujeres y los hombres.
+
 
 **¿Qué tan fuerte es la relación entre matemáticas y lectura crítica?**
+Para poder mirar la relacion entre matematicas y lectura critica primero se tiene que calcular la correlacion entre estas dos materias esto se hace con la funcion cor().
+
+```{r correlacion,warning=FALSE,message=FALSE}
+
+# Calcular correlación entre Matemáticas y Lectura Crítica
+correlacion_mat_lectura <- cor(
+  datos_icfes_limpios2$PUNT_MATEMATICAS,
+  datos_icfes_limpios2$PUNT_LENGUAJE,
+  use = "complete.obs"
+)
+
+correlacion_mat_lectura
+
+```
+
+El coeficiente de correlación de Pearson se caracteriza por +1 esto indica que la correlación es perfecta positiva, las dos variables lenguaje y matemáticas suben juntas, si es 0 no hay relación lineal y si es -1 hay una correlación negativa esto es cuando ambas variables bajan.
+En este caso el valor de correlación es de 0.472713 esto indica que al ser positivo entre mayor puntaje de lectura mayor es el puntaje de matemáticas. Por ese motivo se puede decir que existe una correlación positiva entre las materias de matemáticas y lenguaje, esto permite entender que si un estudiante tiene un buen rendimiento en un área también tiende a hacer bueno en la otra área.
 
 ## 5. Visualización socioeconómica
 

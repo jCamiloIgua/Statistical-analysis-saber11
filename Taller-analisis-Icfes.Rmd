@@ -490,7 +490,7 @@ kable(obtener_estadisticos(datos_icfes_limpios2$PUNT_INGLES, "ING"),
       caption = "Estadísticos Descriptivos: Inglés", digits = 2)
 ```
 
-En la materia de inglés los puntajes promedios fueron de 42.91, se registró una mediana de 42, el puntaje mínimo fue de -1 y el máximo de 100, se contó con un Q1 de 37 y Q3 de 46, siendo el rango de los puntajes de inglés de 37 y 46. La desviación fue de 11.89. Esta materia presenta una alta dispersión en los puntajes, lo cual indica una gran variabilidad en los resultados de los estudiantes, posiblemente gracias a los diferentes niveles de dominio del idioma.
+En la materia de inglés los puntajes promedios fueron de 42.91, se registró una mediana de 42, el puntaje mínimo fue de -1 y el máximo de 100, se contó con un Q1 de 37 y Q3 de 46, siendo el rango de los puntajes de inglés de 37 y 46. La desviación fue de 11.89. Esta materia presenta una alta dispersión en los puntajes, lo cual indica una gran variabilidad en los resultados de los estudiantes, posiblemente gracias a los diferentes niveles de dominio del idioma. 
 
 **¿Cuál es la materia con mayor puntaje promedio?**
 Para obtener este valor se calcula el promedio de cada materia y se usa la función max(), para saber cual es el mayor promedio.
@@ -513,7 +513,8 @@ promedios_materias <- data.frame(
 materia_mayor_promedio <- promedios_materias[which.max(promedios_materias$Promedio), ]
 materia_mayor_promedio
 ```
-El resultado obtenido fue que la materia con mayor puntaje promedio fue la materia de Lenguaje con un promedio de 49.893, esto indica que en términos generales los estudiantes obtuvieron mejores resultados de calificación en esta área evaluada, se puede interpretar que el grupo de estudiantes estudiado tiene fortalezas relacionadas con el área del lenguaje como la lectura crítica o compresión lectora.
+El resultado obtenido fue que la materia con mayor puntaje promedio fue la materia de Lenguaje con un promedio de 49.893, esto indica que en términos generales los estudiantes obtuvieron mejores resultados de calificación en esta área evaluada, se puede interpretar que el grupo de estudiantes estudiado tiene fortalezas relacionadas con el área del lenguaje como la lectura crítica o compresión lectora. 
+
 **¿Cuál presenta la mayor desviación estándar?**
 Se calcula la mayor desviación estandar mirando la desviación de cada una.
 ```{r mayor_desviacion,warning=FALSE,message=FALSE}
@@ -668,8 +669,7 @@ En la clasificación de edad los hombres también lideraron los puntajes se pued
 Para poder mirar la relacion entre matematicas y lectura critica primero se tiene que calcular la correlacion entre estas dos materias esto se hace con la funcion cor().
 
 ```{r correlacion,warning=FALSE,message=FALSE}
-
-# Calcular correlación entre Matemáticas y Lectura Crítica
+# Correlación entre Matemáticas y Lectura Crítica
 correlacion_mat_lectura <- cor(
   datos_icfes_limpios2$PUNT_MATEMATICAS,
   datos_icfes_limpios2$PUNT_LENGUAJE,
@@ -685,3 +685,87 @@ En este caso el valor de correlación es de 0.472713 esto indica que al ser posi
 
 ## 5. Visualización socioeconómica
 
+**verificar tipo de respuestas**
+Antes de crear los gráficos se va a analizar que tipos de respuestas tienen estas variables con la función unique().
+
+```{r testeovariables,warning=FALSE,message=FALSE}
+unique(datos_icfes_limpios2$FAMI_INTERNET)
+unique(datos_icfes_limpios2$FAMI_COMPUTADOR)
+unique(datos_icfes_limpios2$FAMI_CELULAR)
+unique(datos_icfes_limpios2$FAMI_SERVICIO_TELEVISION)
+unique(datos_icfes_limpios2$FAMI_TELEFONO_FIJO)
+```
+
+Los resultados obtenidos indican que las respuestas están configuradas de manera numérica, se analizó y se concluyó que los valores 1 son "Si" y las variables con 0 son "No", las demás variables con 2,3 y 4 tal vez hacen referencia a la cantidad, pero para el análisis se van a descartar y solo tomar en cuenta los valores con 1.
+
+**Gráfico de acceso tecnologico por genero**
+
+```{r tecno_genero,warning=FALSE,message=FALSE}
+library(tidyr)
+tecnologia_genero <- datos_icfes_limpios2 %>%
+  select(ESTU_GENERO, FAMI_INTERNET, FAMI_COMPUTADOR, FAMI_CELULAR,
+         FAMI_SERVICIO_TELEVISION, FAMI_TELEFONO_FIJO) %>%
+  pivot_longer(cols = -ESTU_GENERO, names_to = "Tecnologia", values_to = "Acceso") %>%
+  filter(Acceso == 1) %>%
+  group_by(ESTU_GENERO, Tecnologia) %>%
+  summarise(Acceso_Porcentaje = n(), .groups = "drop") %>%
+  group_by(Tecnologia) %>%
+  mutate(Porcentaje = 100 * Acceso_Porcentaje / sum(Acceso_Porcentaje))
+
+ggplot(tecnologia_genero, aes(x = Tecnologia, y = Porcentaje, fill = ESTU_GENERO)) +
+  geom_col(position = "dodge") +
+  labs(title = "Acceso a Tecnología por Género",
+       x = "Tecnología", y = "Porcentaje de Acceso") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+
+```
+
+Los resultados obtenidos al analizar las variables de FAMI_CELULAR,FAMI_INTERNET,FAMI_COMPUTADOR, FAMI_SERVICIO_TELEVISION y FAMI_TELEFONO_FIJO por género, arrojo que los hombres (M)con el color verde, tienen acceso a todas las herramientas tecnológicas, las herramientas que más se destacan son las de acceso a internet y a teléfono fijo.
+Por otro lado, las mujeres (F) con el color rosado, también tienen acceso a todas las herramientas como los hombres, pero en comparación hay una brecha con respecto a las mujeres.
+El grupo X de color azul es una población muy pequeña por ese motivo no es representativa para este análisis.
+Del grafico se puede concluir que el celular es el medio con mayor acceso en todos los géneros, el computador y el internet también tiene alto nivel de acceso pero una pequeña brecha de géneros y el teléfono fijo es el de menor acceso por la preferencia del uso del celular.
+
+**Gráfico de acceso tecnologico por edad categorizada**
+
+```{r tecno_edadCate,warning=FALSE,message=FALSE}
+tecnologia_edad <- datos_icfes_limpios2 %>%
+  select(CATEGORIA_EDAD, FAMI_INTERNET, FAMI_COMPUTADOR, FAMI_CELULAR,
+         FAMI_SERVICIO_TELEVISION, FAMI_TELEFONO_FIJO) %>%
+  pivot_longer(cols = -CATEGORIA_EDAD, names_to = "Tecnologia", values_to = "Acceso") %>%
+  filter(Acceso == 1) %>%
+  group_by(CATEGORIA_EDAD, Tecnologia) %>%
+  summarise(Acceso_Porcentaje = n(), .groups = "drop") %>%
+  group_by(Tecnologia) %>%
+  mutate(Porcentaje = 100 * Acceso_Porcentaje / sum(Acceso_Porcentaje))
+
+ggplot(tecnologia_edad, aes(x = Tecnologia, y = Porcentaje, fill = CATEGORIA_EDAD)) +
+  geom_col(position = "dodge") +
+  labs(title = "Acceso a Tecnología por edad categorizada",
+       x = "Tecnología", y = "Porcentaje de Acceso") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+La variable creada en el apartado 2 denominada como CATEGORIA_EDAD se agrupo de la siguiente manera: 
+15 años o menos de color rojo
+16 - 17 años de color verde
+18 - 19 años de color turquesa
+20 o más años de color morado
+
+De los resultados se puede decir que de la variable FAMI_CELULAR el acceso aumenta con la edad y que el grupo de 15 años o menos son los que tienen el menor acceso.
+De la variable FAMI_COMPUTADOR se puede deducir que la categoría azul de 18 a 19 tienen más acceso como con el grupo morado de 20 o más años
+
+Los resultados de FAMI_INTERNET indican que el grupo morado tiene el mayor acceso y los grupos menores de 15 o menos y de 16 y 17 tienen menos acceso.
+
+La variable de televisión y de teléfono fijo casi tiene la misma distribución de datos el grupo de 20 o más tiene el mayor acceso y los demás siguen el patrón de menor a mayor con la edad.
+
+Se puede decir que la edad es un factor determinante en el acceso a la tecnología ya que las personas con 20 o más años tienen más acceso a todas las tecnologías analizadas, los estudiantes del grupo de  15 años o menos tienen un acceso muy bajo a las tecnologías siendo determinante en sus resultados de la prueba del ICFES.
+
+**¿Qué relación puede existir entre acceso a servicios y el rendimiento académico?**
+
+Como se pudo apreciar en los análisis de las variables socioeconómicas el acceso a servicios tecnológicos es muy variado y si se analizan los resultados los hombres (M) tienen mayor acceso y tal vez por este motivo se puede dar razón a los anteriores análisis donde los hombres tienen mayores puntajes en las áreas de matemáticas que las mujeres ya que si se analizan que al tener mayor facilidades para usar las herramientas tecnológicas se puede aprender y pulir más las habilidades para el examen, así que la diferencia de acceso pudo ser un factor influyente en el rendimiento del examen.
+
+Por otro lado, si se analiza la disponibilidad de acceso tecnológico por edad categorizada los mayores de 20 años tienen más acceso que los menores de 15 años y los de 18 y 19 tiene acceso, pero no tanto como los de 20 años. En los anteriores análisis se detectó que la mayoría de estudiantes son mayores de 18 años entonces es la población que no tiene tantas facilidades de acceso a la tecnología por ende no tienen fácil acceso a información para estudiar para el examen por este motivo se puede concluir  que el acceso a los servicios tecnológicos afectan al rendimiento de los estudiantes a la hora de presentar el examen del ICFES.

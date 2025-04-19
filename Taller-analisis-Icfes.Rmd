@@ -10,36 +10,38 @@ fontsize: 12pt
 geometry: a4paper
 ---
 ## Análisis Exploratorio resultados de la prueba saber 11 
-En el siguiente taller se realizo un análisis estadístico completo de los resultados del 
-ICFES 2012.  
+En el siguiente taller se realizo un análisis estadístico completo de los resultados del ICFES 2012, en donde se limpiaron los datos con errores tipográficos o con valores faltantes, también se organizaron y modificaron algunos nombres de las variables para facilitar los análisis. Los análisis se realizaron para comprender el desempeño de los estudiantes durante la prueba, en donde se tomaron en cuenta variables como la edad, colegios de estudio y las encuestas socioeconomicas, todo este análisis se realizo con el fin de comprender si a la falta de acceso a Internet, contar con herramientas tecnológicas o tener buenos puntajes en ciertas materias pudieron haber generado un ventaja a la hora de presentar el examen.
 
 ## 1. Carga y exploración de los datos
 
-**Codificación dataset de ICFES**:
-Para poder importar los datos del dataset del ICFES primero se tiene que mirar que tipo de codificación tiene el archivo .csv para saber como importarlo. Para esto se usa la funcion guess_encoding() del paquete readr, permite detectar la codificación de caracteres de un archivo CSV.
+**Codificación dataset de ICFES**:  
+Para poder importar los datos del dataset del ICFES primero se tiene que mirar que tipo de codificación tiene el archivo .csv para saber como importarlo. Para esto se usa la función guess_encoding() del paquete readr, permite detectar la codificación de caracteres de un archivo CSV.
 ```{r codificacion_datos, warning=FALSE,message=FALSE}
 library(knitr)
 library(dplyr)
 library(readr)
 guess_encoding("SB11-20121-RGSTRO-CLFCCN-V1-0-txt-csv.csv") %>%
-  kable(col.names = c("Codificación", "Confianza"), caption = "Codificaciones detectadas por `guess_encoding`")
+  kable(col.names = c("Codificación", "Confianza"),
+  caption = "Codificaciones detectadas por `guess_encoding`")
 ```
 Como se puede apreciar se obtuvo las codificaciones sugeridas, la confidence indica la confianza del tipo de codificación en este caso el valor es 1.00 el cual es la máxima confianza, por ende el archivo se debe leer con la codificación UTF-8
 
-**Importar dataset de ICFES**:
+**Importar dataset de ICFES**:  
 Para importar los datos del archivo csv al proyecto de R se uso read_csv del paquete readr, para leer los datos y convertirlos en un data frame, se declaro que el tipo de codificación de los caracteres es UTF-8.
 ```{r datos_icfes, warning=FALSE}
 library(readr)
-datos_icfes <- read_csv("SB11-20121-RGSTRO-CLFCCN-V1-0-txt-csv.csv", locale = locale(encoding = "UTF-8"), show_col_types = FALSE)
+datos_icfes <- read_csv("SB11-20121-RGSTRO-CLFCCN-V1-0-txt-csv.csv", 
+locale = locale(encoding = "UTF-8"), show_col_types = FALSE)
 ```
-Despues de visualizar los pimeros datos importados en R se obtuvo un error Delimiter: "," indicando que si bien los datos se importaron bien algunos caracteres se importaron un un formato erroneo por ese motivo se creo una segunda variable con el delimitador sep y se elimino el error.Para los analisis se tomo datos_icfes_delimiter para evitar errores con los datos.
+Después de visualizar los primeros datos importados en R se obtuvo un error Delimiter: "," indicando que si bien los datos se importaron bien algunos caracteres se importaron con un formato erróneo por ese motivo se creo una segunda variable con el delimitador sep y se elimino el error.Para los análisis se tomo datos_icfes_delimiter para evitar errores con los datos.
 
 ```{r datos_icfesdelimiter, warning=FALSE}
-datos_icfes_delimiter <- read.csv("SB11-20121-RGSTRO-CLFCCN-V1-0-txt-csv.csv", sep = "," , encoding = "UTF-8")
+datos_icfes_delimiter <- read.csv("SB11-20121-RGSTRO-CLFCCN-V1-0-txt-csv.csv",
+sep = "," , encoding = "UTF-8")
 
 ```
 
-**¿Cuantas observaciones y variables hay?**
+**¿Cuantas observaciones y variables hay?**  
 Para poder ver el numero de observaciones las filas de los datos se usa la función nrow().
 ```{r nobservaciones,warning=FALSE,message=FALSE,echo=FALSE}
 # Cantidad de filas en el dataframe
@@ -60,7 +62,7 @@ data_frame(columnas = n_columnas) %>%
   kable(col.names = c("Número de columnas"), caption = "Cantidad total de columnas en el dataset")
 ```
 
-**¿Que tipo de variables predominan: Numéricas o categóricas?** 
+**¿Que tipo de variables predominan: Numéricas o categóricas?**  
 Para poder determinar que tipos de variables predominan en el conjunto de datos de las notas del ICFES, se uso la función str() para poder ver la estructura del data frame, esto permite ver el tipo de cada variable y su contenido. Se uso Kable para poder organizar los datos en formato de tabla.
 
 ```{r usoStr}
@@ -71,13 +73,14 @@ estructura_df <- data.frame(estructura)
 
 # Mostrar los datos
 estructura_df %>%
-  kable(col.names = c("Estructura de Datos"), caption = "Estructura del Dataset (primeras 20 columnas)")
+  kable(col.names = c("Estructura de Datos"), 
+  caption = "Estructura del Dataset (primeras 20 columnas)")
 
 ```
-Utilizando la funcion str() sin limitar la cantidad de datos a mostrar seobtuvieron 45390 filas y 112 columnas .
+Utilizando la función str() sin limitar la cantidad de datos a mostrar se obtuvieron 45390 filas y 112 columnas .
 
-**Ver nombres y tipo de datos de las variables**
-Con la funcion sapply podemos visualizar el nombre de las variables y su tipo de dato, se crea una tabla con dos columnas una con los nombres de las variables y otra con su tipo de dato.
+**Ver nombres y tipo de datos de las variables**  
+Con la función sapply podemos visualizar el nombre de las variables y su tipo de dato, se creo una tabla con dos columnas una con los nombres de las variables y otra con su tipo de dato para poder visualizar mejor los datos.
 ```{r columnasNombre}
 library(knitr)
 
@@ -88,41 +91,49 @@ tabla_tipos <- tibble::tibble(
 
 kable(tabla_tipos, caption = "Tipos de Variables en el DataFrame")
 ```
-**Análisis de las variables del dataset de ICFES Saber 11**
+**Análisis de las variables del dataset de ICFES Saber 11**  
+
 Los tipos de datos encontrados en el dataset de las notas del ICFES son: 
 
-*Character:* Es el tipo de dato usado para texto o cadenas de caracteres.
+**Character:** Es el tipo de dato usado para texto o cadenas de caracteres.
 
-*Integer:* Se usa para los números enteros sin decimales.
+**Integer:** Se usa para los números enteros sin decimales.
 
-*numeric:* Se usa para los números decimales se puede usan para números enteros también.
+**numeric:** Se usa para los números decimales se puede usan para números enteros también.
 
-*logical:* Se usa para valores booleanos TRUE o FALSE.
+**logical:** Se usa para valores booleanos TRUE o FALSE.
 
 Los variables del conjunto de datos son sobre datos del estudiante, residencia del estudiante, información sobre el colegio, información sobre los grados cursados, información familiar e ingresos.
 
-**Cantidad de cada tipo de variable**
-Para poder contar cada tipo de variable se uso la función sapply() la cual aplica una función a cada columna del data frame, se le aplico la función class para que tome el tipo de datos de cada variable, lo que genera es un vector con los datos, con la función table() se cuenta cuantas veces aparece un valor del vector creado con sapply().
+**Cantidad de cada tipo de variable**  
+
+Para poder contar cada tipo de variable se uso la función sapply() la cual aplica una función a cada columna del data frame, se le aplico la función class para que tome el tipo de datos de cada variable, lo que genera es un vector con los datos, con la función table() se cuenta cuantas veces aparece un valor del vector creado con sapply() y asi obtener la cantidad de cada tipo de variable.
 ```{r contar_variables}
 tabla_tipos <- table(sapply(datos_icfes_delimiter, class))
 tabla_tipos
 ```
 Los datos obtenidos son con el dataset original, sin haberle hecho ninguna técnica de transformación y limpieza de datos, por ende se van a tomar como datos cualitativos el tipo character y como datos cuantitativos los tipos: integer y numeric.
-Con este análisis en hay en total 47 variables categóricas o cualitativas y 64 variables cuantitativas o numéricas.
-Pero en el conjunto hay una variable con un tipo de dato logical.
+Con este análisis hay en total 47 variables categóricas o cualitativas y 64 variables cuantitativas o numéricas.
+Pero en el conjunto hay una variable con un tipo de dato logical la cual es la siguiente:
+
 ```{r logical}
 variables_logicas <- names(datos_icfes_delimiter)[sapply(datos_icfes_delimiter, is.logical)]
 variables_logicas
 ```
-La variable contiene los siguientes datos:
+Para poder ver que datos en su mayoría tiene a variable se uso unique(), los datos son los siguientes datos:
 ```{r logical_data}
 unique(datos_icfes_delimiter$ESTU_LIMITA_BAJAVISION)
-all(is.na(datos_icfes_delimiter$ESTU_LIMITA_BAJAVISION))
-
 ```
+
+Con la función all() se verifica si todo los datos son de tipo NA, esto arroja un valor de TRUE
+```{r logical_dataAll}
+all(is.na(datos_icfes_delimiter$ESTU_LIMITA_BAJAVISION))
+``` 
+
 Con la función unique permite ver cuantos valores distintos hay el resultado fue NA osea esta variable no contiene datos y se uso all para verificar si en toda la variable soy hay datos NA y arrojo TRUE quiere decir que esta variable este campo nunca tuvo datos. 
 
-**Conclusión ¿Que tipo de variables predominan?**
+**Conclusión ¿Que tipo de variables predominan?**  
+
 Después de conocer y analizar cada variable se puede concluir que hay mas variables de tipo numéricas con 63 variables y 47 de tipo categóricas por ahora se toman como categóricas, la variable logical se descarta ya que al no contar con información no es importante en este análisis de tipo de variables.
 
 ## 2. Limpieza y preparación de datos
@@ -136,9 +147,9 @@ Para contar cuantos Na hay en todo el conjunto de datos se usa la función sum()
 ```{r datos_faltantesSUM}
 sum(is.na(datos_icfes_delimiter))
 ```
-Se encontro un valor considerable de valores NA
+Se encontró un valor considerable de valores NA
 
-**Variables con valores NA** 
+**Variables con valores NA**  
 Para ver los valores faltantes por columna se usa colSums() para poder ver de manera sencilla la cantidad de valores NA de cada variable.
 ```{r datos_faltantesDimension}
 #Por columna
@@ -153,14 +164,24 @@ naKable_df <- data.frame(
   Cantidad_NA = as.numeric(na_filtrados)
 )
 
-#tabla
-knitr::kable(naKable_df, caption = "Cantidad de valores faltantes (NA) por columna", align = "lc")
+knitr::kable(naKable_df, 
+caption = "Cantidad de valores faltantes (NA) por columna", align = "lc")
 ```
-**Análisis de variables irrelevantes o vacías**
-Después de mirar que variables contienen valores de tipo Na se analizo un conjunto de variables que para los siguientes análisis del taller no afectan a los resultados del análisis, estas variables son:
-Las variables de reprobación de grados: Se eliminan porque es una variable que no es relevante para los próximos análisis.
-Variables a eliminar: ESTU_REPROBO_CUARTO, ESTU_REPROBO_DECIMO,
-ESTU_REPROBO_NOVENO,ESTU_REPROBO_OCTAVO,ESTU_REPROBO_PRIMERO,ESTU_REPROBO_QUINTO,ESTU_REPROBO_SEGUNDO,ESTU_REPROBO_SEPTIMO,ESTU_REPROBO_SEXTO,ESTU_REPROBO_TERCERO,ESTU_REPROBO_ONCE_MAS
+**Análisis de variables irrelevantes o vacías**  
+Después de mirar que variables contienen valores de tipo Na se analizo un conjunto de variables que para los siguientes análisis del taller no afectan a los resultados del análisis, estas variables son:  
+**Las variables de reprobación de grados:** Se eliminan porque es una variable que no es relevante para los próximos análisis.  
+Variables a eliminar:  
+ESTU_REPROBO_CUARTO  
+ESTU_REPROBO_DECIMO  
+ESTU_REPROBO_NOVENO  
+ESTU_REPROBO_OCTAVO  
+ESTU_REPROBO_PRIMERO  
+ESTU_REPROBO_QUINTO  
+ESTU_REPROBO_SEGUNDO  
+ESTU_REPROBO_SEPTIMO  
+ESTU_REPROBO_SEXTO  
+ESTU_REPROBO_TERCERO  
+ESTU_REPROBO_ONCE_MAS  
 Se crea una nueva variable llamada datos_icfes_reprobo que guardara los datos sin tener en cuenta los que se van a descartar para los análisis.
 ```{r eliminacion_reprobados,warning=FALSE,message=FALSE}
 library(dplyr)
@@ -180,16 +201,16 @@ datos_icfes_reprobo <- datos_icfes_delimiter %>% select(-c(
 ))
 
 ```
-Variables de Incapacidad: En el conjunto de datos se elimino la variable ESTU_LIMITA_BAJAVISION ya que no es relevante para el análisis del taller se eliminara de la variable datos_icfes_reprobo
+**Variables de Incapacidad:** En el conjunto de datos se elimino la variable ESTU_LIMITA_BAJAVISION ya que no es relevante para el análisis del taller se eliminara de la variable datos_icfes_reprobo
 
 ```{r eliminacion_incapacidad,warning=FALSE,message=FALSE}
 datos_icfes_incapa <- datos_icfes_reprobo %>% select(-c(
   ESTU_LIMITA_BAJAVISION))
 
 ```
-**Valores inconsistentes o faltantes** 
+**Valores inconsistentes o faltantes**  
 
-*ESTU_CUANTOS_COLE_ESTUDIO:* Se analizo si hay datos inconsistentes en la cantidad de colegios de un estudiante se valida que si un estudiante tiene registrado mas de 10 colegios ya es un dato dudoso.Se encontraron ceros inconsistencias.
+**ESTU_CUANTOS_COLE_ESTUDIO:** Se analizo si hay datos inconsistentes en la cantidad de colegios de un estudiante se valida que si un estudiante tiene registrado mas de 10 colegios ya es un dato dudoso.Se encontraron ceros inconsistencias.
 ```{r cantidad_colegios,warning=FALSE,message=FALSE}
 library(dplyr)
 
@@ -199,7 +220,7 @@ datos_icfes_incapa %>%
   distinct() %>%
   arrange(desc(ESTU_CUANTOS_COLE_ESTUDIO))
 ```
-*FAMI_PERSONAS_HOGAR* = Se analiza esta variable en donde si hay 0 personas del hogar o mas de 20 seria un dato inconsistente.Se encontraron ceros inconsistencias.
+**FAMI_PERSONAS_HOGAR:** Se analiza esta variable en donde si hay 0 personas del hogar o mas de 20 seria un dato inconsistente.Se encontraron ceros inconsistencias.
 ```{r cantidad_familia,warning=FALSE,message=FALSE}
 datos_icfes_incapa %>%
   filter(FAMI_PERSONAS_HOGAR == 0 | FAMI_PERSONAS_HOGAR > 20) %>%
@@ -208,7 +229,7 @@ datos_icfes_incapa %>%
   arrange(FAMI_PERSONAS_HOGAR)
 ```
 
-*FAMI_ESTRATO_VIVIENDA: * A la hora de analizar el estrado se encontraron inconsistencias con los datos ya que se encontraron estratos mayores del estrato 6
+**FAMI_ESTRATO_VIVIENDA:** A la hora de analizar el estrado se encontraron inconsistencias con los datos ya que se encontraron estratos mayores del estrato 6
 ```{r estratos,warning=FALSE,message=FALSE}
 library(dplyr)
 library(knitr)
@@ -226,11 +247,11 @@ Como solución se decidió por filtrar y limpiar los valores mayores del estrato
 
 #  Nuevo dataset, dejando solo estratos válidos
 datos_icfes_estrato <- datos_icfes_incapa %>%
-  mutate(FAMI_ESTRATO_VIVIENDA = as.character(FAMI_ESTRATO_VIVIENDA)) %>%
-  filter(FAMI_ESTRATO_VIVIENDA %in% c("1", "2", "3", "4", "5", "6") | is.na(FAMI_ESTRATO_VIVIENDA)) %>%
-  mutate(FAMI_ESTRATO_VIVIENDA = as.numeric(FAMI_ESTRATO_VIVIENDA))
+mutate(FAMI_ESTRATO_VIVIENDA = as.character(FAMI_ESTRATO_VIVIENDA)) %>%
+filter(FAMI_ESTRATO_VIVIENDA %in% c("1", "2", "3", "4", "5", "6") | is.na(FAMI_ESTRATO_VIVIENDA)) %>%
+mutate(FAMI_ESTRATO_VIVIENDA = as.numeric(FAMI_ESTRATO_VIVIENDA))
 
-#Ver los estratos 
+#Estratos 
 library(dplyr)
 library(knitr)
 
@@ -263,14 +284,14 @@ datos_icfes_limpios <- datos_icfes_estrato %>%
     ESTU_TIPO_DOCUMENTO == "Q" ~ "Permiso Especial de Permanencia",
     ESTU_TIPO_DOCUMENTO == "V" ~ "Visa",
     ESTU_TIPO_DOCUMENTO == ""  ~ "Sin Información",
-    TRUE ~ ESTU_TIPO_DOCUMENTO  # para conservar cualquier valor inesperado
+    TRUE ~ ESTU_TIPO_DOCUMENTO  # valores atípicos
   ))
 
 unique(datos_icfes_limpios$ESTU_TIPO_DOCUMENTO)
 
 ```
-**Imputar datos faltantes** 
-Primera se usa la funcion colSums con is.na para ver las columnas que contiene valores NA del dataset limpiado.
+**Imputar datos faltantes**  
+Primero se usa la función colSums con is.na para ver las columnas que contiene valores NA del dataset limpiado.
 ```{r Na_limpio,warning=FALSE,message=FALSE}
 library(knitr)
 library(dplyr)
@@ -283,11 +304,12 @@ colSums(is.na(datos_icfes_limpios)) %>%
   kable(caption = "Cantidad de valores faltantes por variable")
 
 ```
-Con las variables con datos NA, se procedera a escogar algunas varibles para realizar la imputacion de datos, la cual consiste en llenar los valores faltantes (NA) usando una tecnica logica en este caso usando la media, moda o diferentes tecnicas.
-Las variables que cuenten con una valor elevado de NA no seran imputadas por su dificultad, como lo son: Estu_ETNIA, ESTU_CARRDESEADA_TIPO, ESTU_IES-COD-DESEADA etc
-Por otro lado hay variables como lo son: FAMI_OCUPA_PADRE, FAMI_OCUPA_MADRE, ESTU_TRABAJA, FAMI_CELULAR y FAMI_NEVERA que tienen pocos valores NA, se pueden imputar
-**Imputación Variables**
-Para las varaibles de tipo Integer como FAMI_OCUPA_PADRE se realiza la imputacion con la mediana la cual remplaza los valors de NA por la media de los valores existentes, no se eliminan solo se remplazan.
+Con las variables con datos NA, se procederá a escoger algunas variables para realizar la imputación de datos, la cual consiste en llenar los valores faltantes (NA) usando una técnica lógica en este caso usando la media, moda o diferentes técnicas.
+Las variables que cuenten con una valor elevado de NA no serán imputadas por su dificultad, como lo son: Estu_ETNIA, ESTU_CARRDESEADA_TIPO, ESTU_IES-COD-DESEADA etc
+Por otro lado hay variables como lo son: FAMI_OCUPA_PADRE, FAMI_OCUPA_MADRE, ESTU_TRABAJA, FAMI_CELULAR y FAMI_NEVERA que tienen pocos valores NA, se pueden imputar  
+
+**Imputación Variables**  
+Para las variables de tipo Integer como FAMI_OCUPA_PADRE se realiza la imputación con la mediana la cual remplaza los valores de NA por la media de los valores existentes, no se eliminan solo se remplazan.
 ```{r imputacion,warning=FALSE,message=FALSE}
 
 #Copia del dataframe
@@ -349,20 +371,23 @@ colSums(is.na(datos_icfes_limpios2)) %>%
 
 ```
 ## 2.1 Nuevas transformaciones
-**Calcular edad estudiante**
-Para poder calcular edad del estudiante apartir de su fecha de nacimiento y la fecha del examen que es del 2012 se usan las variables: ESTU_NACIMIENTO_DIA, ESTU_NACIMIENTO_MES, ESTU_NACIMIENTO_ANNO.
+**Calcular edad estudiante**  
+Para poder calcular edad del estudiante a partir de su fecha de nacimiento y la fecha del examen que es del 2012 se usan las variables: ESTU_NACIMIENTO_DIA, ESTU_NACIMIENTO_MES, ESTU_NACIMIENTO_ANNO.
 
 Se creo una nueva columna con la fecha completa del estudiante llamada FECHA_NACIMIENTO
 
 ```{r N_edad,warning=FALSE,message=FALSE}
 #Nueva columna con fecha completa
-datos_icfes_limpios2$FECHA_NACIMIENTO <- as.Date(paste(datos_icfes_limpios2$ESTU_NACIMIENTO_ANNO,datos_icfes_limpios2$ESTU_NACIMIENTO_MES,datos_icfes_limpios2$ESTU_NACIMIENTO_DIA,sep = "-"),format = "%Y-%m-%d")
+datos_icfes_limpios2$FECHA_NACIMIENTO <- as.Date(paste                                  (datos_icfes_limpios2$ESTU_NACIMIENTO_ANNO,datos_icfes_limpios2$ESTU_NACIMIENTO_MES,    datos_icfes_limpios2$ESTU_NACIMIENTO_DIA,sep = "-"),
+format = "%Y-%m-%d")
 
 #Se toma una fecha del año 2012 ya que no esta la fecha exacta en los datos
 fecha_examen <- as.Date("2012-01-01")
 
 # Calcular la edad se restan la fecha de nacimiento de la fecha del examen
-datos_icfes_limpios2$EDAD <- as.numeric(difftime(fecha_examen, datos_icfes_limpios2$FECHA_NACIMIENTO, units = "weeks")) / 52.25
+datos_icfes_limpios2$EDAD <- as.numeric(
+difftime(fecha_examen, datos_icfes_limpios2$FECHA_NACIMIENTO, 
+units = "weeks")) / 52.25
 # Redondear las edades a enteros
 datos_icfes_limpios2$EDAD <- round(datos_icfes_limpios2$EDAD)
 library(knitr)
@@ -374,8 +399,8 @@ kable(head(datos_icfes_limpios2 %>% select(EDAD), 15),
 
 ```
 
-**Nueva columna edad categorizada**
-Se creo una nueva columna llamada CATEGORIA_EDAD, para guardar las categorias de las edades, se uso la funcion mutate(), para poder agregar los valores en las columnas, y con el case_when() se crean las categorias de la edad.
+**Nueva columna edad categorizada**  
+Se creo una nueva columna llamada CATEGORIA_EDAD, para guardar las categorías de las edades, se uso la función mutate(), para poder agregar los valores en las columnas, y con el case_when() se crean las categorías de la edad.
 
 ```{r categoria_edad,warning=FALSE,message=FALSE}
 # Crear la nueva columna "CATEGORIA_EDAD"
@@ -400,9 +425,9 @@ kable(head(datos_icfes_limpios2 %>% select(EDAD, CATEGORIA_EDAD), 15),
 
 ## 3. Analisis Exploratorio y Univariado
 
-En esta seccion del taller se van a analizar algunas variables del dataset limpio el cual es datos_icfes_limpios2, se realizara un analisis univariado para comprender el comportamiento de los datos.
-Para obterner los valores generales estadisticos de las variables: Edad_Estudiantes, PUNT_LENGUAJE, PUNT_MATEMATICAS, PUNT_C_SOCIALES, PUNT_FILOSOFIA, PUNT_BIOLOGIA, PUNT_QUIMICA, PUNT_FISICA, PUNT_INGLES
-Se creara un data frame en el cual se calculara cad valor como lo es: minimo, Q1, mediana, promedio, Q3, maximo y desviación estándar para poder llamar los datos de cada variable y poder analizar de mejor manera los datos. 
+En esta sección del taller se van a analizar algunas variables del dataset limpio el cual es datos_icfes_limpios2, se realizara un análisis univariado para comprender el comportamiento de los datos.
+Para obtener los valores generales estadísticos de las variables: Edad_Estudiantes, PUNT_LENGUAJE, PUNT_MATEMATICAS, PUNT_C_SOCIALES, PUNT_FILOSOFIA, PUNT_BIOLOGIA, PUNT_QUIMICA, PUNT_FISICA, PUNT_INGLES
+Se creara un data frame en el cual se calculara cada valor como lo es: minimo, Q1, mediana, promedio, Q3, maximo y desviación estándar para poder llamar los datos de cada variable y poder analizar de mejor manera los datos. 
 
 ```{r univariado_Summary,warning=FALSE,message=FALSE}
 obtener_estadisticos <- function(variable, nombre_variable) {
@@ -492,7 +517,7 @@ kable(obtener_estadisticos(datos_icfes_limpios2$PUNT_INGLES, "ING"),
 
 En la materia de inglés los puntajes promedios fueron de 42.91, se registró una mediana de 42, el puntaje mínimo fue de -1 y el máximo de 100, se contó con un Q1 de 37 y Q3 de 46, siendo el rango de los puntajes de inglés de 37 y 46. La desviación fue de 11.89. Esta materia presenta una alta dispersión en los puntajes, lo cual indica una gran variabilidad en los resultados de los estudiantes, posiblemente gracias a los diferentes niveles de dominio del idioma. 
 
-**¿Cuál es la materia con mayor puntaje promedio?**
+**¿Cuál es la materia con mayor puntaje promedio?**  
 Para obtener este valor se calcula el promedio de cada materia y se usa la función max(), para saber cual es el mayor promedio.
 ```{r materia_promedio,warning=FALSE,message=FALSE}
 # Promedios
@@ -515,8 +540,8 @@ materia_mayor_promedio
 ```
 El resultado obtenido fue que la materia con mayor puntaje promedio fue la materia de Lenguaje con un promedio de 49.893, esto indica que en términos generales los estudiantes obtuvieron mejores resultados de calificación en esta área evaluada, se puede interpretar que el grupo de estudiantes estudiado tiene fortalezas relacionadas con el área del lenguaje como la lectura crítica o compresión lectora. 
 
-**¿Cuál presenta la mayor desviación estándar?**
-Se calcula la mayor desviación estandar mirando la desviación de cada una.
+**¿Cuál presenta la mayor desviación estándar?**  
+Se calcula la mayor desviación estándar mirando la desviación de cada una.
 ```{r mayor_desviacion,warning=FALSE,message=FALSE}
 desviacion_estandar_materias <- data.frame(
   Materia = c("Lenguaje", "Matemáticas", "Ciencias Sociales", "Filosofía", 
@@ -534,8 +559,9 @@ desviacion_estandar_materias <- data.frame(
 materia_mayor_desviacion <-desviacion_estandar_materias[which.max(desviacion_estandar_materias$Desviacion_Estandar), ]
 materia_mayor_desviacion
 ```
-La materia que presento mayor desviación estándar fue ingles con un valor 11.88893, esto indica que los puntajes individuales de cada estudiante no fueron uniformes no hay uniformidad de datos, esto indica que diferentes estudiantes sacaron datos bajos o altos pero no hay una uniformidad que diga que la mayoría saco un puntaje en general. Esto puede ser debido a que durante el examen los estudiantes no contaban un buen nivel de inglés y otros al contrario si tenían bases sólidas en el idioma generando la diferencia de los datos.
-**¿Cual es la distribución de edades entre los estudiantes**
+La materia que presento mayor desviación estándar fue ingles con un valor 11.88893, esto indica que los puntajes individuales de cada estudiante no fueron uniformes no hay uniformidad de datos, esto indica que diferentes estudiantes sacaron datos bajos o altos pero no hay una uniformidad que diga que la mayoría saco un puntaje en general. Esto puede ser debido a que durante el examen los estudiantes no contaban un buen nivel de inglés y otros al contrario si tenían bases sólidas en el idioma generando la diferencia de los datos.  
+
+**¿Cual es la distribución de edades entre los estudiantes**  
 
 Para poder ver la distribución de edades de los estudiantes de hace uso de la variable categoria_edad creada anteriormente, los datos se mostraron con un diagrama de barras para ver cómo se distribuyen las categorías de las edades.
 ```{r distribucion_edades,warning=FALSE,message=FALSE}
@@ -549,19 +575,19 @@ conteo_edades <- datos_icfes_limpios2 %>%
 # Gráfico de barras 
 ggplot(conteo_edades, aes(x = CATEGORIA_EDAD, y = n)) +
   geom_bar(stat = "identity", fill = "skyblue", color = "black") +
-  geom_text(aes(label = n), vjust = -0.5, size = 4) +  # Agrega los valores sobre las barras
+  geom_text(aes(label = n), vjust = -0.5, size = 4) +  # valores
   labs(title = "Distribución de Estudiantes por Categoría de Edad",
        x = "Categoría de Edad",
        y = "Cantidad de Estudiantes") +
   theme_minimal()
 ```
 
-Con los datos obtenidos del diagrama se puede decir que la categorización de las edades es de la siguiente manera:
-Jóvenes (18 - 26 años): 31.424 estudiantes
-Adultos (27 - 59 años): 9.088 estudiantes
-Adolescentes (12 - 17 años): 3.803 estudiantes
-Adulto mayor (60+ años): 67 estudiantes
-Desconocido: 885 estudiantes
+Con los datos obtenidos del diagrama se puede decir que la categorización de las edades es de la siguiente manera:  
+Jóvenes (18 - 26 años): 31.424 estudiantes  
+Adultos (27 - 59 años): 9.088 estudiantes  
+Adolescentes (12 - 17 años): 3.803 estudiantes  
+Adulto mayor (60+ años): 67 estudiantes  
+Desconocido: 885 estudiantes  
 
 La variable desconocida se creó para guardar los datos faltantes o erróneos de la variable edad.
 La mayoría de los estudiantes se encuentran en la categoría de Jóvenes, este dato es coherente ya que en la mayoría de los casos los estudiantes que presentan el ICFES están a punto de salir del colegio y sus edades son de 18 para arriba.
@@ -575,6 +601,8 @@ Los adultos mayores son una gran minoría ya que es un dato esperado en el anál
 ## 4. Análisis Bivariado
 Teniendo en cuenta que hay que analizar las comparaciones con: ciudad, La edad (Categorizada), tipo y caracterización del colegio y nivel se inglés, se va a analizar la matemáticas por separado teniendo en cuenta el género.
 
+En el ejercicio se solicita las comparaciones por ciudad pero a la falta de esta información se opto por usar la clasificación por departamento.  
+
 **Por Departamento**
 
 ```{r mate_ciudad,warning=FALSE,message=FALSE}
@@ -582,7 +610,7 @@ library(dplyr)
 library(ggplot2)
 library(knitr)
 
-# Promedio por género y ciudad
+# Promedio por género y departamento
 mat_ciudad <- datos_icfes_limpios2 %>%
   group_by(ESTU_RESIDE_DEPTO , ESTU_GENERO) %>%
   summarise(Prom_MATE = mean(PUNT_MATEMATICAS, na.rm = TRUE), .groups = "drop")
@@ -590,7 +618,7 @@ mat_ciudad <- datos_icfes_limpios2 %>%
 kable(head(mat_ciudad, 10), caption = "Promedio de Matemáticas por Género y Departamento")
 ```
 
-En el departamento de Amazonas las mujeres (F) tienen un puntaje promedio de 43.50 en matematicas por otro lado los hombres (M) tiene un puntaje promedio de 45.14, los hombres en este departamento tienen mayor puntaje.
+En el departamento de Amazonas las mujeres (F) tienen un puntaje promedio de 43.50 en matemáticas por otro lado los hombres (M) tiene un puntaje promedio de 45.14, los hombres en este departamento tienen mayor puntaje.
 
 En el departamento de Antioquia las mujeres (F) tienen un puntaje promedio de 41.88 en matematicas por otro lado los hombres (M) tiene un puntaje promedio de 45.10, los hombres en este departamento tienen mayor puntaje.
 
@@ -612,13 +640,13 @@ ggplot(mat_edad, aes(x = CATEGORIA_EDAD, y = Prom_MATE, fill = ESTU_GENERO)) +
   theme_minimal()
 
 ```
-Adolescentes: Las mujeres (F) tuvieron un puntaje de 45 y los hombres (M) de 48 los hombres tienen mejor puntaje que las mujeres.
+**Adolescentes:** Las mujeres (F) tuvieron un puntaje de 45 y los hombres (M) de 48 los hombres tienen mejor puntaje que las mujeres.
 
-Adulto: Las mujeres (F) tuvieron un puntaje de 43 y los hombres (M) de 48 la diferencia fue de 5 puntos con respecto a las mujeres.
+**Adulto:** Las mujeres (F) tuvieron un puntaje de 43 y los hombres (M) de 48 la diferencia fue de 5 puntos con respecto a las mujeres.
 
-Adulto Mayor: Las mujeres (F) tuvieron un puntaje de 43 y los hombres (M) de 44 la diferencia fue muy pequeña.
+**Adulto Mayor:** Las mujeres (F) tuvieron un puntaje de 43 y los hombres (M) de 44 la diferencia fue muy pequeña.
 
-Joven: Las mujeres (F) obtuvieron 47 y los hombres (M) un puntaje de 49
+**Joven:** Las mujeres (F) obtuvieron 47 y los hombres (M) un puntaje de 49
 
 Se puede concluir que en todas las categorías de edad los hombres (M) obtienen mejores promedios en matemáticas que las mujeres (F). 
 
@@ -646,11 +674,13 @@ Con base a los resultados las mujeres que estudian en un colegios femeninos tien
 ```{r mate_ingles,warning=FALSE,message=FALSE}
 # Agrupamos por género y nivel de inglés
 mat_ingles <- datos_icfes_limpios2 %>%
-  group_by(ESTU_GENERO, DESEMP_INGLES) %>%
-  summarise(Prom_MATEMATICAS = mean(PUNT_MATEMATICAS, na.rm = TRUE), .groups = "drop")
+group_by(ESTU_GENERO, DESEMP_INGLES) %>%
+summarise(Prom_MATEMATICAS = mean(PUNT_MATEMATICAS, na.rm = TRUE), 
+  .groups = "drop")
 
-# Tabla de resultados
-kable(mat_ingles, caption = "Promedio de Matemáticas por Género y Nivel de Inglés", digits = 2)
+# Tabla 
+kable(mat_ingles,
+caption = "Promedio de Matemáticas por Género y Nivel de Inglés", digits = 2)
 ```
 
 Según los datos de nivel de inglés los mayores niveles B1 y B+ tuvieron un mayor promedio de matemáticas, esto es para mujeres y hombres, los hombres tienen los mayores promedios en ingles en B+ es de 65.79 y B1 de 60.70, las mujeres tienen buenos puntajes también B+ de 61.09 y B1 de 57.20. Los hombres son los que tienen mayor puntaje en ingles por ende la relación es proporcional con matemáticas.
@@ -665,8 +695,9 @@ Si existe una diferencia significativa en el puntaje global de género, según l
 En la clasificación de edad los hombres también lideraron los puntajes se puede concluir que si existe una gran diferencia de puntajes de matemáticas entre las mujeres y los hombres.
 
 
-**¿Qué tan fuerte es la relación entre matemáticas y lectura crítica?**
-Para poder mirar la relacion entre matematicas y lectura critica primero se tiene que calcular la correlacion entre estas dos materias esto se hace con la funcion cor().
+**¿Qué tan fuerte es la relación entre matemáticas y lectura crítica?**  
+
+Para poder mirar la relación entre matemáticas y lectura critica primero se tiene que calcular la correlación entre estas dos materias esto se hace con la función cor().
 
 ```{r correlacion,warning=FALSE,message=FALSE}
 # Correlación entre Matemáticas y Lectura Crítica
@@ -685,7 +716,7 @@ En este caso el valor de correlación es de 0.472713 esto indica que al ser posi
 
 ## 5. Visualización socioeconómica
 
-**verificar tipo de respuestas**
+**verificar tipo de respuestas**  
 Antes de crear los gráficos se va a analizar que tipos de respuestas tienen estas variables con la función unique().
 
 ```{r testeovariables,warning=FALSE,message=FALSE}
@@ -698,14 +729,15 @@ unique(datos_icfes_limpios2$FAMI_TELEFONO_FIJO)
 
 Los resultados obtenidos indican que las respuestas están configuradas de manera numérica, se analizó y se concluyó que los valores 1 son "Si" y las variables con 0 son "No", las demás variables con 2,3 y 4 tal vez hacen referencia a la cantidad, pero para el análisis se van a descartar y solo tomar en cuenta los valores con 1.
 
-**Gráfico de acceso tecnologico por genero**
+**Gráfico de acceso tecnológico por genero**
 
 ```{r tecno_genero,warning=FALSE,message=FALSE}
 library(tidyr)
 tecnologia_genero <- datos_icfes_limpios2 %>%
   select(ESTU_GENERO, FAMI_INTERNET, FAMI_COMPUTADOR, FAMI_CELULAR,
          FAMI_SERVICIO_TELEVISION, FAMI_TELEFONO_FIJO) %>%
-  pivot_longer(cols = -ESTU_GENERO, names_to = "Tecnologia", values_to = "Acceso") %>%
+  pivot_longer(cols = -ESTU_GENERO, names_to = "Tecnologia", 
+  values_to = "Acceso") %>%
   filter(Acceso == 1) %>%
   group_by(ESTU_GENERO, Tecnologia) %>%
   summarise(Acceso_Porcentaje = n(), .groups = "drop") %>%
@@ -722,7 +754,13 @@ ggplot(tecnologia_genero, aes(x = Tecnologia, y = Porcentaje, fill = ESTU_GENERO
 
 ```
 
-Los resultados obtenidos al analizar las variables de FAMI_CELULAR,FAMI_INTERNET,FAMI_COMPUTADOR, FAMI_SERVICIO_TELEVISION y FAMI_TELEFONO_FIJO por género, arrojo que los hombres (M)con el color verde, tienen acceso a todas las herramientas tecnológicas, las herramientas que más se destacan son las de acceso a internet y a teléfono fijo.
+Los resultados obtenidos al analizar las variables por genero de:  
+FAMI_CELULAR  
+FAMI_INTERNET  
+FAMI_COMPUTADOR  
+FAMI_SERVICIO_TELEVISION  
+FAMI_TELEFONO_FIJO  
+El gráfico arrojo que los hombres (M)con el color verde, tienen acceso a todas las herramientas tecnológicas, las herramientas que más se destacan son las de acceso a Internet y a teléfono fijo.
 Por otro lado, las mujeres (F) con el color rosado, también tienen acceso a todas las herramientas como los hombres, pero en comparación hay una brecha con respecto a las mujeres.
 El grupo X de color azul es una población muy pequeña por ese motivo no es representativa para este análisis.
 Del grafico se puede concluir que el celular es el medio con mayor acceso en todos los géneros, el computador y el internet también tiene alto nivel de acceso pero una pequeña brecha de géneros y el teléfono fijo es el de menor acceso por la preferencia del uso del celular.
@@ -733,7 +771,8 @@ Del grafico se puede concluir que el celular es el medio con mayor acceso en tod
 tecnologia_edad <- datos_icfes_limpios2 %>%
   select(CATEGORIA_EDAD, FAMI_INTERNET, FAMI_COMPUTADOR, FAMI_CELULAR,
          FAMI_SERVICIO_TELEVISION, FAMI_TELEFONO_FIJO) %>%
-  pivot_longer(cols = -CATEGORIA_EDAD, names_to = "Tecnologia", values_to = "Acceso") %>%
+  pivot_longer(cols = -CATEGORIA_EDAD, names_to = "Tecnologia", 
+  values_to = "Acceso") %>%
   filter(Acceso == 1) %>%
   group_by(CATEGORIA_EDAD, Tecnologia) %>%
   summarise(Acceso_Porcentaje = n(), .groups = "drop") %>%
@@ -749,11 +788,11 @@ ggplot(tecnologia_edad, aes(x = Tecnologia, y = Porcentaje, fill = CATEGORIA_EDA
 
 ```
 
-La variable creada en el apartado 2 denominada como CATEGORIA_EDAD se agrupo de la siguiente manera: 
-15 años o menos de color rojo
-16 - 17 años de color verde
-18 - 19 años de color turquesa
-20 o más años de color morado
+La variable creada en el apartado 2 denominada como CATEGORIA_EDAD se agrupo de la siguiente manera:  
+15 años o menos de color rojo  
+16 - 17 años de color verde  
+18 - 19 años de color turquesa  
+20 o más años de color morado  
 
 De los resultados se puede decir que de la variable FAMI_CELULAR el acceso aumenta con la edad y que el grupo de 15 años o menos son los que tienen el menor acceso.
 De la variable FAMI_COMPUTADOR se puede deducir que la categoría azul de 18 a 19 tienen más acceso como con el grupo morado de 20 o más años
@@ -768,4 +807,4 @@ Se puede decir que la edad es un factor determinante en el acceso a la tecnolog�
 
 Como se pudo apreciar en los análisis de las variables socioeconómicas el acceso a servicios tecnológicos es muy variado y si se analizan los resultados los hombres (M) tienen mayor acceso y tal vez por este motivo se puede dar razón a los anteriores análisis donde los hombres tienen mayores puntajes en las áreas de matemáticas que las mujeres ya que si se analizan que al tener mayor facilidades para usar las herramientas tecnológicas se puede aprender y pulir más las habilidades para el examen, así que la diferencia de acceso pudo ser un factor influyente en el rendimiento del examen.
 
-Por otro lado, si se analiza la disponibilidad de acceso tecnológico por edad categorizada los mayores de 20 años tienen más acceso que los menores de 15 años y los de 18 y 19 tiene acceso, pero no tanto como los de 20 años. En los anteriores análisis se detectó que la mayoría de estudiantes son mayores de 18 años entonces es la población que no tiene tantas facilidades de acceso a la tecnología por ende no tienen fácil acceso a información para estudiar para el examen por este motivo se puede concluir  que el acceso a los servicios tecnológicos afectan al rendimiento de los estudiantes a la hora de presentar el examen del ICFES.
+Por otro lado, si se analiza la disponibilidad de acceso tecnológico por edad categorizada los mayores de 20 años tienen más acceso que los menores de 15 años y los de 18 y 19 años tiene un acceso mayor pero no tanto como los de 20 años. En los anteriores análisis se detectó que la mayoría de estudiantes son mayores de 18 años entonces es la población que no tiene tantas facilidades de acceso a la tecnología por ende no tienen fácil acceso a información para estudiar para el examen por este motivo se puede concluir  que el acceso a los servicios tecnológicos afectan al rendimiento de los estudiantes a la hora de presentar el examen del ICFES.

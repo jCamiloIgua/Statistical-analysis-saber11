@@ -91,6 +91,7 @@ tabla_tipos <- tibble::tibble(
 
 kable(tabla_tipos, caption = "Tipos de Variables en el DataFrame")
 ```
+\newpage
 **Análisis de las variables del dataset de ICFES Saber 11**  
 
 Los tipos de datos encontrados en el dataset de las notas del ICFES son: 
@@ -143,6 +144,7 @@ En el anterior análisis se descubrió que la variable ESTU_LIMITA_BAJAVISION ti
 ```{r datos_faltantes}
 any(is.na(datos_icfes_delimiter))
 ```
+\newpage
 Para contar cuantos Na hay en todo el conjunto de datos se usa la función sum().
 ```{r datos_faltantesSUM}
 sum(is.na(datos_icfes_delimiter))
@@ -171,6 +173,7 @@ caption = "Cantidad de valores faltantes (NA) por columna", align = "lc")
 Después de mirar que variables contienen valores de tipo Na se analizo un conjunto de variables que para los siguientes análisis del taller no afectan a los resultados del análisis, estas variables son:  
 **Las variables de reprobación de grados:** Se eliminan porque es una variable que no es relevante para los próximos análisis.  
 Variables a eliminar:  
+
 ESTU_REPROBO_CUARTO  
 ESTU_REPROBO_DECIMO  
 ESTU_REPROBO_NOVENO  
@@ -182,7 +185,9 @@ ESTU_REPROBO_SEPTIMO
 ESTU_REPROBO_SEXTO  
 ESTU_REPROBO_TERCERO  
 ESTU_REPROBO_ONCE_MAS  
+
 Se crea una nueva variable llamada datos_icfes_reprobo que guardara los datos sin tener en cuenta los que se van a descartar para los análisis.
+\newpage
 ```{r eliminacion_reprobados,warning=FALSE,message=FALSE}
 library(dplyr)
 
@@ -245,7 +250,7 @@ datos_icfes_incapa %>%
 Como solución se decidió por filtrar y limpiar los valores mayores del estrato 6.
 ```{r limpi_estrato,warning=FALSE,message=FALSE}
 
-#  Nuevo dataset, dejando solo estratos válidos
+#  Solo estratos válidos
 datos_icfes_estrato <- datos_icfes_incapa %>%
 mutate(FAMI_ESTRATO_VIVIENDA = as.character(FAMI_ESTRATO_VIVIENDA)) %>%
 filter(FAMI_ESTRATO_VIVIENDA %in% c("1", "2", "3", "4", "5", "6") | is.na(FAMI_ESTRATO_VIVIENDA)) %>%
@@ -452,7 +457,7 @@ kable(obtener_estadisticos(datos_icfes_limpios2$EDAD, "EDAD"),
 ```
 
 La edad de los estudiantes cuenta con un rango muy amplio con un valor mínimo de 6 años y un máximo de 88 años, el promedio de la edad es de 22.9 años en comparación con la mediana se encuentra en 20 años, esto indica que más de la mitad de los estudiantes están en los 20 años, el cuartil Q1 está en 18 años, el Q3 está en 25 años esto indica que la mayoría de los estudiantes están en el intervalo de entre los 18 y 25 años. La desviación estándar es de 7.4 esto es una dispersión moderada, pero puede ser debida a los datos atípicos como los de 6 y 88 años, pero en general la población de estudiantes es mayormente joven y los datos no están tan dispersos.
-
+\newpage
 **Datos estadisticos PUNT_LENGUAJE**
 ```{r E_lenguaje,warning=FALSE,message=FALSE}
 kable(obtener_estadisticos(datos_icfes_limpios2$PUNT_LENGUAJE, "LENG"),
@@ -475,7 +480,7 @@ kable(obtener_estadisticos(datos_icfes_limpios2$PUNT_C_SOCIALES, "SOCIA"),
       caption = "Estadísticos Descriptivos: Ciencias Sociales", digits = 2)
 ```
 
-En la materia de sociales los estudiantes tuvieron un puntaje de 46.01 con una mediana de 46 esto indica una distribución con simetría, el puntaje mínimo fue 0 y el máximo 82, el Q1 es de 41 y el Q3 51 esto indica que el 50% de los estudiantes tuvieron puntajes entre 41 y 51. La desviación fue de 8.23 es muy baja ya que como se vio anterior mente la distribución es muy simétrica.
+En la materia de sociales los estudiantes tuvieron un puntaje de 46.01 con una mediana de 46 esto indica una distribución con simetría, el puntaje mínimo fue 0 y el máximo 82, el Q1 es de 41 y el Q3 51 esto indica que el 50% de los estudiantes tuvieron puntajes entre 41 y 51. La desviación fue de 8.23 es muy baja ya que como se vio anterior mente la distribución es muy simétrica.  
 
 **Datos estadisticos PUNT_FILOSOFIA**
 ```{r E_filosofia,warning=FALSE,message=FALSE}
@@ -538,7 +543,7 @@ promedios_materias <- data.frame(
 materia_mayor_promedio <- promedios_materias[which.max(promedios_materias$Promedio), ]
 materia_mayor_promedio
 ```
-El resultado obtenido fue que la materia con mayor puntaje promedio fue la materia de Lenguaje con un promedio de 49.893, esto indica que en términos generales los estudiantes obtuvieron mejores resultados de calificación en esta área evaluada, se puede interpretar que el grupo de estudiantes estudiado tiene fortalezas relacionadas con el área del lenguaje como la lectura crítica o compresión lectora. 
+El resultado obtenido fue que la materia con mayor puntaje promedio fue la materia de Lenguaje con un promedio de 49.893, esto indica que en términos generales los estudiantes obtuvieron mejores resultados de calificación en esta área evaluada, se puede interpretar que el grupo de estudiantes estudiado tiene fortalezas relacionadas con el área del lenguaje como la lectura crítica o compresión lectora.  
 
 **¿Cuál presenta la mayor desviación estándar?**  
 Se calcula la mayor desviación estándar mirando la desviación de cada una.
@@ -598,14 +603,18 @@ Los adolescentes representan una proporción menor de la muestra de la població
 Los adultos mayores son una gran minoría ya que es un dato esperado en el análisis pero la presencia de los valores desconocidos que fueron 885 esto indica que existen registros que están incorrectos o ausentes, esto es un limitante en el análisis ya que no se puede tomar en cuenta toda la muestra de los estudiantes que presentaron el examen de ICFES en el 2012.
 
 
-## 4. Análisis Bivariado
-Teniendo en cuenta que hay que analizar las comparaciones con: ciudad, La edad (Categorizada), tipo y caracterización del colegio y nivel se inglés, se va a analizar la matemáticas por separado teniendo en cuenta el género.
+## 4. Análisis Bivariado  
 
-En el ejercicio se solicita las comparaciones por ciudad pero a la falta de esta información se opto por usar la clasificación por departamento.  
+Teniendo en cuenta que hay que analizar las comparaciones con: ciudad, La edad (Categorizada), tipo y caracterización del colegio y nivel de ingles se va realizar un análisis bivariado teniendo en cuenta la variable y el genero para analizar si los hombres o las mujeres son mejores en matemáticas.
+Se tomaron como variables independientes las comparaciones sugeridas y el genero (hombre o mujer) están se relacionan con una variable dependiente los puntajes de matemáticas o PUNT_MATEMATICAS.
 
-**Por Departamento**
+**Análisis Bivariado**  
 
-```{r mate_ciudad,warning=FALSE,message=FALSE}
+En el ejercicio se solicita las comparaciones por ciudad pero a la falta de esta información se opto por usar la clasificación por departamento. Se tomaron cada variable con el genero y se realiza un group_by() para poder generar el análisis correctamente.
+\newpage
+**Departamento y género**  
+
+```{r mate_departamento,warning=FALSE,message=FALSE}
 library(dplyr)
 library(ggplot2)
 library(knitr)
@@ -626,7 +635,7 @@ En el departamento de Arauca las mujeres (F) tienen un puntaje promedio de 40.96
 
 En el departamento de Atlantico las mujeres (F) tienen un puntaje promedio de 41.88 en matematicas por otro lado los hombres (M) tiene un puntaje promedio de 45.10, los hombres en este departamento tienen mayor puntaje. 
 
-**Por categoria edad**
+**Por categoria edad y genero**
 
 ```{r mate_categoriaEdad,warning=FALSE,message=FALSE}
 mat_edad <- datos_icfes_limpios2 %>%
@@ -650,7 +659,7 @@ ggplot(mat_edad, aes(x = CATEGORIA_EDAD, y = Prom_MATE, fill = ESTU_GENERO)) +
 
 Se puede concluir que en todas las categorías de edad los hombres (M) obtienen mejores promedios en matemáticas que las mujeres (F). 
 
-**Por tipo y caracterización del colegio**
+**Tipo y caracterización del colegio y género** 
 
 ```{r mate_colegio,warning=FALSE,message=FALSE}
 library(dplyr)
@@ -669,7 +678,7 @@ kable(head(mat_colegio, 10), caption = "Promedio de Matemáticas según Género 
 
 Con base a los resultados las mujeres que estudian en un colegios femeninos tienen puntajes más altos con 52.85, por otro lado los colegios de género masculino tienen un promedio más bajo con 37.50, se puede concluir que las mujeres tienen mejores resultados si el colegio es puramente académico y femenino. 
 
-**Nivel de ingles**
+**Nivel de inglés y género**
 
 ```{r mate_ingles,warning=FALSE,message=FALSE}
 # Agrupamos por género y nivel de inglés
@@ -682,17 +691,26 @@ summarise(Prom_MATEMATICAS = mean(PUNT_MATEMATICAS, na.rm = TRUE),
 kable(mat_ingles,
 caption = "Promedio de Matemáticas por Género y Nivel de Inglés", digits = 2)
 ```
-
+\newpage
 Según los datos de nivel de inglés los mayores niveles B1 y B+ tuvieron un mayor promedio de matemáticas, esto es para mujeres y hombres, los hombres tienen los mayores promedios en ingles en B+ es de 65.79 y B1 de 60.70, las mujeres tienen buenos puntajes también B+ de 61.09 y B1 de 57.20. Los hombres son los que tienen mayor puntaje en ingles por ende la relación es proporcional con matemáticas.
+
 
 **¿Quien se destaca más en matemáticas hombres o mujeres?**
 
-Según los datos analizados de cada variable los hombres destacan más en el área de matemáticas que las mujeres, ya que mostraron mayores promedios en casi todos los casos de estudio como en edad, la ubicación geográfica, el tipo de colegio y en el nivel de inglés.
+Según los datos analizados de cada variable los hombres destacan más en el área de
+matemáticas que las mujeres, ya que mostraron mayores promedios en casi todos
+los casos de estudio como en edad, la ubicación geográfica, el tipo de colegio y en
+el nivel de inglés
 
-**¿Existe diferencia significativa en el puntaje global por género?**
-
-Si existe una diferencia significativa en el puntaje global de género, según los análisis realizados sobre las variables de departamento, edad, tipo de colegio y nivel de inglés, se puedo encontrar que en la variable por genero los hombres obtuvieron promedios más altos que las mujeres, en la clasificación por departamentos los hombres también tuvieron los mejores puntajes por ejemplo en Antioquia los hombres tuvieron 45.10 y las mujeres 41.87.
-En la clasificación de edad los hombres también lideraron los puntajes se puede concluir que si existe una gran diferencia de puntajes de matemáticas entre las mujeres y los hombres.
+**¿Existe diferencia significativa en el puntaje global por género?**  
+Si existe una diferencia significativa en el puntaje global de género, según los análisis
+realizados sobre las variables de departamento, edad, tipo de colegio y nivel de
+inglés, se puedo encontrar que en la variable por genero los hombres obtuvieron
+promedios más altos que las mujeres, en la clasificación por departamentos los hombres
+también tuvieron los mejores puntajes por ejemplo en Antioquia los hombres
+tuvieron 45.10 y las mujeres 41.87. En la clasificación de edad los hombres también
+lideraron los puntajes se puede concluir que si existe una gran diferencia de
+puntajes de matemáticas entre las mujeres y los hombres.
 
 
 **¿Qué tan fuerte es la relación entre matemáticas y lectura crítica?**  
@@ -713,6 +731,7 @@ correlacion_mat_lectura
 
 El coeficiente de correlación de Pearson se caracteriza por +1 esto indica que la correlación es perfecta positiva, las dos variables lenguaje y matemáticas suben juntas, si es 0 no hay relación lineal y si es -1 hay una correlación negativa esto es cuando ambas variables bajan.
 En este caso el valor de correlación es de 0.472713 esto indica que al ser positivo entre mayor puntaje de lectura mayor es el puntaje de matemáticas. Por ese motivo se puede decir que existe una correlación positiva entre las materias de matemáticas y lenguaje, esto permite entender que si un estudiante tiene un buen rendimiento en un área también tiende a hacer bueno en la otra área.
+
 
 ## 5. Visualización socioeconómica
 
@@ -764,6 +783,7 @@ El gráfico arrojo que los hombres (M)con el color verde, tienen acceso a todas 
 Por otro lado, las mujeres (F) con el color rosado, también tienen acceso a todas las herramientas como los hombres, pero en comparación hay una brecha con respecto a las mujeres.
 El grupo X de color azul es una población muy pequeña por ese motivo no es representativa para este análisis.
 Del grafico se puede concluir que el celular es el medio con mayor acceso en todos los géneros, el computador y el internet también tiene alto nivel de acceso pero una pequeña brecha de géneros y el teléfono fijo es el de menor acceso por la preferencia del uso del celular.
+\newpage
 
 **Gráfico de acceso tecnologico por edad categorizada**
 
